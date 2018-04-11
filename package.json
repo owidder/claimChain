@@ -1,0 +1,22 @@
+{
+  "name": "bctron",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/owidder/BCTron.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/owidder/BCTron/issues"
+  },
+  "homepage": "https://github.com/owidder/BCTron#readme",
+  "dependencies": {
+    "web3": "^1.0.0-beta.33"
+  }
+}
