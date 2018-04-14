@@ -1,7 +1,5 @@
 pragma solidity ^0.4.19;
 
-import "./StringLib.sol";
-
 contract ChainTraze {
     
     uint constant X_DIM = 1000;
@@ -33,7 +31,7 @@ contract ChainTraze {
     function checkId(string id) internal returns(bool) {
         address existingAddress = idToAddress[id];
         if(existingAddress != address(0x0)) {
-            emit Error("id already exists");
+            Error("id already exists");
             return false;
         }
         
@@ -45,7 +43,7 @@ contract ChainTraze {
         string storage content = field[index];
         uint len = bytes(content).length;
         if(len > 0) {
-            emit Error("start position not free");
+            Error("start position not free");
             return false;
         }
         
@@ -79,10 +77,10 @@ contract ChainTraze {
             field[index] = id;
             xpositions[id] = x;
             ypositions[id] = y;
-            emit Position(id, x, y);
+            Position(id, x, y);
             string memory sx = uintToString(x);
             string memory sy = uintToString(y);
-            emit Position2(id, sx, sy);
+            Position2(id, sx, sy);
     }
     
     function registerId(string id) internal {

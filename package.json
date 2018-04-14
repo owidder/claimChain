@@ -17,6 +17,8 @@
   },
   "homepage": "https://github.com/owidder/BCTron#readme",
   "dependencies": {
+    "ethers": "^3.0.10",
+    "events": "^2.0.0",
     "web3": "^1.0.0-beta.33"
   }
 }
