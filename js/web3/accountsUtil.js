@@ -1,9 +1,29 @@
 const global = require('../global');
+const web3util = require('./web3Util');
+const ethersUtil = require('./ethersUtil');
+
+const getAccountsWithWeb3 = () => {
+    return web3util.getWeb3().eth.getAccounts();
+}
+
+const getAccountsWithEthers = () => {
+    const provider = ethersUtil.getProvider();
+    return provider.listAccounts();
+}
+
+const getAccounts = () => {
+    if(web3util.web3version.startsWith("1")) {
+        return getAccountsWithWeb3();
+    }
+    else {
+        return getAccountsWithEthers();
+    }
+}
 
 const getDefaultAccount = () => {
     const web3 = global.getWeb3();
     return new Promise((resolve, reject) => {
-        web3.eth.getAccounts().then((accounts) => {
+        getAccounts().then((accounts) => {
             if(accounts && accounts.length > 0) {
                 resolve(accounts[0]);
             }
@@ -15,5 +35,5 @@ const getDefaultAccount = () => {
 };
 
 module.exports = {
-    getDefaultAccount
+    getDefaultAccount, getAccounts
 };
