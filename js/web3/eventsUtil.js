@@ -1,15 +1,13 @@
 const ethers = require('ethers');
-
-const Web3 = require('web3');
-const web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
-
 const web3 = require('./connect');
 const global = require('../global');
 const EventEmitter = require('events');
+const dirtyHack = require('./dirtyHack');
 
 class ContractEventEmitter extends EventEmitter {}
 
-const provider = new ethers.providers.Web3Provider(web3Provider);
+const provider = new ethers.providers.Web3Provider(web3);
+dirtyHack(provider);
 
 const subscribe = (contractName, eventName) => {
     const _abi = global.getContractInfo(contractName).abi;
@@ -25,6 +23,35 @@ const subscribe = (contractName, eventName) => {
     return contractEventEmitter;
 }
 
+const subscribe2 = (contractName, eventName) => {
+    const contractInfo = global.getContractInfo(contractName);
+
+    const contractEventEmitter = new ContractEventEmitter();
+
+    const options = {fromBlock: 0, toBlock: "latest", address: contractInfo.address,};
+    web3.eth.subscribe("logs", options, (result) => {
+        console.log(result);
+        contractEventEmitter.emit('event', result);
+    });
+
+    return contractEventEmitter;
+}
+
+const subscribe3 = (contractName, eventName) => {
+    const contractInfo = global.getContractInfo(contractName);
+
+    const contractEventEmitter = new ContractEventEmitter();
+
+    const contract = new web3.eth.Contract(contractInfo.abi, contractInfo.address);
+    const options = {fromBlock: 0, toBlock: "latest"};
+    contract.events[eventName](options, (result) => {
+        console.log(result);
+        contractEventEmitter.emit('event', result);
+    });
+
+    return contractEventEmitter;
+}
+
 module.exports = {
-    subscribe
+    subscribe, subscribe2, subscribe3
 }
