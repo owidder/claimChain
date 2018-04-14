@@ -117,4 +117,4 @@ const events = {POSITION, POSITION2, ERROR};
 const processParamAddress = process.argv[3];
 const address = _.isUndefined(processParamAddress) ? "0x692a70d2e424a56d2c6c27aa97d1a86395877b3a" : processParamAddress;
 
-module.exports = {abi, address, events};
+module.exports = {abi, address, events, NAME};

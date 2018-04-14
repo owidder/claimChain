@@ -13,8 +13,8 @@ function setContractInfo(contractName, info) {
     _contractInfo[contractName] = info;
 }
 
-function getContractInfo(contractInfo) {
-    _contractInfo = contractInfo;
+function getContractInfo(contractName) {
+    return _contractInfo[contractName];
 }
 
 module.exports = {
