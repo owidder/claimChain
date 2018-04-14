@@ -1,14 +1,12 @@
 const ethers = require('ethers');
-const global = require('../global');
 const EventEmitter = require('events');
 const ethersUtil = require('./ethersUtil');
 
 class ContractEventEmitter extends EventEmitter {}
 
-const subscribe = (contractName, eventName) => {
+const subscribe = (contractInfo, eventName) => {
     const provider = ethersUtil.getProvider();
-    const _abi = global.getContractInfo(contractName).abi;
-    const _interface = new ethers.Interface(_abi);
+    const _interface = new ethers.Interface(contractInfo.abi);
 
     const contractEventEmitter = new ContractEventEmitter();
 

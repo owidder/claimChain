@@ -1,4 +1,3 @@
-const global = require('../global');
 const web3util = require('./web3Util');
 const ethersUtil = require('./ethersUtil');
 
@@ -21,7 +20,6 @@ const getAccounts = () => {
 }
 
 const getDefaultAccount = () => {
-    const web3 = global.getWeb3();
     return new Promise((resolve, reject) => {
         getAccounts().then((accounts) => {
             if(accounts && accounts.length > 0) {
