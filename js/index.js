@@ -12,3 +12,7 @@ accountsUtil.getDefaultAccount().then((account) => {
 eventsUtil.subscribe(chainTrazeContractInfo.NAME, chainTrazeContractInfo.events.POSITION2).on('event', (data) => {
     console.log(data);
 });
+
+eventsUtil.subscribe(chainTrazeContractInfo.NAME, chainTrazeContractInfo.events.ERROR).on('event', (data) => {
+    console.log(data);
+});

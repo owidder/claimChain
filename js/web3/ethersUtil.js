@@ -6,8 +6,8 @@ let _provider;
 
 const getProvider = () => {
     if(_.isUndefined(_provider)) {
-        const web3 = web3Util.getWeb3();
-        _provider = new ethers.providers.Web3Provider(web3);
+        const web3Provider = web3Util.getWeb3Provider();
+        _provider = new ethers.providers.Web3Provider(web3Provider);
     }
 
     return _provider;
