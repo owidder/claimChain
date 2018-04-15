@@ -14,13 +14,25 @@ contract ChainTraze {
     mapping (string => address) idToAddress;
     mapping (string => uint) xpositions;
     mapping (string => uint) ypositions;
+    mapping (string => uint) lastBlockNumbers;
+    mapping (string => uint) totalRewards;
     
-    event Position(string id, uint x, uint y);
-    event Position2(string id, string x, string y);
+    event Position(string id, uint x, uint y, uint reward);
+    event Position2(string id, string x, string y, uint reward);
     event Error(string message);
+    event Reward(string id, uint reward, uint totalReward);
     
     function computeIndex(uint x, uint y) pure internal returns(uint index) {
         index = y * X_DIM + x;
+    }
+
+    function computeReward(string id) internal {
+        uint lastBlockNumber = lastBlockNumbers[id];
+        uint currentBlockNumber = block.number;
+        uint reward = lastBlockNumber > 0 ? currentBlockNumber - lastBlockNumber : 0;
+        lastBlockNumbers[id] = currentBlockNumber;
+        totalRewards[id] += reward;
+        Reward(id, reward, totalRewards[id]);
     }
     
     function getPositionContent(uint x, uint y) public view returns(string) {
@@ -38,12 +50,12 @@ contract ChainTraze {
         return true;
     }
     
-    function checkStartPosition(uint startx, uint starty) internal returns(bool) {
-        uint index = computeIndex(startx, starty);
+    function checkPosition(uint x, uint y) internal returns(bool) {
+        uint index = computeIndex(x, y);
         string storage content = field[index];
         uint len = bytes(content).length;
         if(len > 0) {
-            Error("start position not free");
+            Error("position not free");
             return false;
         }
         
@@ -82,14 +94,59 @@ contract ChainTraze {
             string memory sy = uintToString(y);
             Position2(id, sx, sy);
     }
+
+    function isAllowed(string id) internal returns(bool) {
+        address addressForId = idToAddress[id];
+        if(addressForId == address(0x0)) {
+            Error("id does not exist");
+            return false;
+        }
+        if(msg.sender != addressForId) {
+            Error("id belongs to: " + idToAddress);
+            return false;
+        }
+
+        return true;
+    }
+
+    function move(string id, int dx, int dy) internal {
+        if(isAllowed(id)) {
+            uint currentx = xpositions[id];
+            uint currenty = ypositions[id];
+            uint _nx = currentx + dx;
+            uint _ny = currenty + dy;
+            uint nextx = nx < 0 ? X_DIM - 1 : (nx >= X_DIM ? 0 : nx);
+            uint nexty = ny < 0 ? Y_DIM - 1 : (ny >= Y_DIM ? 0 : ny);
+            if(checkPosition(nextx, nexty)) {
+                goIntoField(id, nextx, nexty);
+                computeReward(id);
+            }
+        }
+    }
     
     function registerId(string id) internal {
         addressToId[msg.sender] = id;
         idToAddress[id] = msg.sender;
     }
+
+    function north(string id) public {
+        move(id, 0, -1);
+    }
+
+    function south(string id) public {
+        move(id, 0, 1);
+    }
+
+    function west(string id) public {
+        move(id, -1, 0);
+    }
+
+    function east(string id) public {
+        move(id, 1, 0);
+    }
     
     function register(string id, uint startx, uint starty) public {
-        if(checkId(id) && checkStartPosition(startx, starty)) {
+        if(checkId(id) && checkPosition(startx, starty)) {
             registerId(id);
             goIntoField(id, startx, starty);
         }
