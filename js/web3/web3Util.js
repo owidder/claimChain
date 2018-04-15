@@ -4,6 +4,7 @@ const Web3 = require('web3');
 
 let _web3;
 let _web3Provider;
+let _web3WebSocketProvider;
 
 const getWeb3 = () => {
     if(_.isUndefined(_web3)) {
@@ -16,6 +17,14 @@ const getWeb3 = () => {
 const getWeb3Provider = () => {
     if(_.isUndefined(_web3Provider)) {
         _web3Provider = new Web3.providers.HttpProvider('http://localhost:7545');
+    }
+
+    return _web3Provider;
+}
+
+const getWeb3WebSocketProvider = () => {
+    if(_.isUndefined(_web3Provider)) {
+        _web3Provider = new Web3.providers.WebSocketProvier('http://localhost:8163');
     }
 
     return _web3Provider;

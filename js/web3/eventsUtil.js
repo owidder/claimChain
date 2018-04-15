@@ -18,6 +18,14 @@ const subscribe = (contractInfo, eventName) => {
     return contractEventEmitter;
 }
 
+const subscribeViaWebsockets = (contractInfo, eventName) => {
+    const contract = new web3.eth.Contract(contractInfo.abi, contractInfo.address);
+    const contractEventEmitter = new ContractEventEmitter();
+    contract.events[eventName]({}, (data) => {
+        contractEventEmitter.emit('event', data);
+    });
+}
+
 module.exports = {
     subscribe
 }
