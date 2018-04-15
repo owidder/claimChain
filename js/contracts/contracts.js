@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const truffleContract = require('truffle-contract');
 const web3Util = require('../web3/web3Util');
 const chainTrazeArtifacts = require('../../truffle/build/contracts/ChainTraze.json');
@@ -7,13 +8,28 @@ const currentProvider = web3Util.getWeb3().currentProvider;
 
 ChainTraze.setProvider(currentProvider);
 
-const sayHello = async (truffleContract) => {
-    const contractInstance = await truffleContract.deployed();
-    console.log(truffleContract.contractName + " [" + contractInstance.address + "]");
+const getAddresses = (truffleContract) => {
+    const addresses = [];
+    _.forOwn(truffleContract.networks, (network, networkId) => {
+        const address = network.address;
+        addresses.push({networkId, address});
+    });
+
+    return addresses;
+}
+
+const getDefaultAddress = (truffleContract) => {
+    const addresses = getAddresses(truffleContract);
+    return addresses[0].address;
+}
+
+const sayHello = (truffleContract) => {
+    console.log(truffleContract.contractName + " [" + getDefaultAddress(truffleContract) + "]");
 }
 
 sayHello(ChainTraze);
 
 module.exports = {
+    getAddresses, getDefaultAddress,
     ChainTraze
 }
