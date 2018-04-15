@@ -6,10 +6,10 @@ accountsUtil.getDefaultAccount().then((account) => {
     console.log(account);
 });
 
-eventsUtil.subscribe(contracts.chainTrazeInfo, "Position2").on('event', (data) => {
+eventsUtil.subscribe(contracts.ChainTraze, "Position2").on('event', (data) => {
     console.log(data);
 });
 
-eventsUtil.subscribe(contracts.chainTrazeInfo, "Error").on('event', (data) => {
+eventsUtil.subscribe(contracts.ChainTraze, "Error").on('event', (data) => {
     console.log(data);
 });

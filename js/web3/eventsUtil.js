@@ -4,9 +4,9 @@ const ethersUtil = require('./ethersUtil');
 
 class ContractEventEmitter extends EventEmitter {}
 
-const subscribe = (contractInfo, eventName) => {
+const subscribe = (truffleContract, eventName) => {
     const provider = ethersUtil.getProvider();
-    const _interface = new ethers.Interface(contractInfo.abi);
+    const _interface = new ethers.Interface(truffleContract.abi);
 
     const contractEventEmitter = new ContractEventEmitter();
 
@@ -18,8 +18,8 @@ const subscribe = (contractInfo, eventName) => {
     return contractEventEmitter;
 }
 
-const subscribeViaWebsockets = (contractInfo, eventName) => {
-    const contract = new web3.eth.Contract(contractInfo.abi, contractInfo.address);
+const subscribeViaWebsockets = (truffleContract, eventName) => {
+    const contract = new web3.eth.Contract(truffleContract.abi, truffleContract.address);
     const contractEventEmitter = new ContractEventEmitter();
     contract.events[eventName]({}, (data) => {
         contractEventEmitter.emit('event', data);

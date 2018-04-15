@@ -20,6 +20,7 @@
     "ethers": "^3.0.10",
     "events": "^2.0.0",
     "lodash": "^4.17.5",
+    "truffle-contract": "^3.0.4",
     "web3": "^0.20.6"
   }
 }
