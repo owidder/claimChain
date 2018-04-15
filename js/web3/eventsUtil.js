@@ -31,10 +31,16 @@ const subscribeWithEthers = (truffleContract, eventName) => {
 
 const subscribeViaWebsockets = (truffleContract, eventName) => {
     const contractEventEmitter = new ContractEventEmitter();
-    const web3 = web3Util.getWeb3();
+    const web3 = web3Util.getWeb3WithWsProvider();
     const contract = new web3.eth.Contract(truffleContract.abi, contracts.getDefaultAddress(truffleContract));
-    contract.events[eventName]({}, (data) => {
-        contractEventEmitter.emit('event', data);
+    const options = {fromBlock: 0, toBlock: "latest"};
+    contract.events[eventName]({}, (error, data) => {
+        if(!error) {
+            contractEventEmitter.emit('event', data);
+        }
+        else {
+            console.error(error);
+        }
     });
 
     return contractEventEmitter;
