@@ -13,3 +13,7 @@ eventsUtil.subscribe(contracts.ChainTraze, "Position2").on('event', (data) => {
 eventsUtil.subscribe(contracts.ChainTraze, "Error").on('event', (data) => {
     console.log(data);
 });
+
+eventsUtil.subscribe(contracts.ChainTraze, "Reward").on('event', (data) => {
+    console.log(data);
+});
