@@ -113,12 +113,12 @@ contract ChainTraze {
         if(isAllowed(id)) {
             uint currentx = xpositions[id];
             uint currenty = ypositions[id];
-            uint _nx = currentx + dx;
-            uint _ny = currenty + dy;
-            uint nextx = _nx < 0 ? X_DIM - 1 : (_nx >= X_DIM ? 0 : _nx);
-            uint nexty = _ny < 0 ? Y_DIM - 1 : (_ny >= Y_DIM ? 0 : _ny);
-            if(checkPosition(nextx, nexty)) {
-                goIntoField(id, nextx, nexty);
+            int _nx = int(currentx) + dx;
+            int _ny = int(currenty) + dy;
+            int nextx = _nx < 0 ? int(X_DIM) - 1 : (_nx >= int(X_DIM) ? 0 : _nx);
+            int nexty = _ny < 0 ? int(Y_DIM) - 1 : (_ny >= int(Y_DIM) ? 0 : _ny);
+            if(checkPosition(uint(nextx), uint(nexty))) {
+                goIntoField(id, uint(nextx), uint(nexty));
                 computeReward(id);
             }
         }
@@ -149,8 +149,8 @@ contract ChainTraze {
         move(id, 0, 1);
     }
 
-    function southeast(id) public {
-        move(id, 1, 1)
+    function southeast(string id) public {
+        move(id, 1, 1);
     }
 
     function east(string id) public {
