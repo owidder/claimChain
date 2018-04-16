@@ -29,7 +29,8 @@ contract ChainTraze {
     function computeReward(string id) internal {
         uint lastBlockNumber = lastBlockNumbers[id];
         uint currentBlockNumber = block.number;
-        uint reward = lastBlockNumber > 0 ? currentBlockNumber - lastBlockNumber : 0;
+        uint diff = currentBlockNumber - lastBlockNumber;
+        uint reward = lastBlockNumber > 0 ? (diff > 1 ? diff : 0) : 0;
         lastBlockNumbers[id] = currentBlockNumber;
         totalRewards[id] += reward;
         Reward(id, reward, totalRewards[id]);
