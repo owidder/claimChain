@@ -115,8 +115,8 @@ contract ChainTraze {
             uint currenty = ypositions[id];
             uint _nx = currentx + dx;
             uint _ny = currenty + dy;
-            uint nextx = nx < 0 ? X_DIM - 1 : (nx >= X_DIM ? 0 : nx);
-            uint nexty = ny < 0 ? Y_DIM - 1 : (ny >= Y_DIM ? 0 : ny);
+            uint nextx = _nx < 0 ? X_DIM - 1 : (_nx >= X_DIM ? 0 : _nx);
+            uint nexty = _ny < 0 ? Y_DIM - 1 : (_ny >= Y_DIM ? 0 : _ny);
             if(checkPosition(nextx, nexty)) {
                 goIntoField(id, nextx, nexty);
                 computeReward(id);
@@ -133,16 +133,32 @@ contract ChainTraze {
         move(id, 0, -1);
     }
 
-    function south(string id) public {
-        move(id, 0, 1);
+    function northwest(string id) public {
+        move(id, -1, -1);
     }
 
     function west(string id) public {
         move(id, -1, 0);
     }
 
+    function southwest(string id) public {
+        move(id, -1, 1);
+    }
+
+    function south(string id) public {
+        move(id, 0, 1);
+    }
+
+    function southeast(id) public {
+        move(id, 1, 1)
+    }
+
     function east(string id) public {
         move(id, 1, 0);
+    }
+
+    function northeast(string id) public {
+        move(id, 1, -1);
     }
     
     function register(string id, uint startx, uint starty) public {
