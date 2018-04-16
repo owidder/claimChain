@@ -8,8 +8,8 @@ let _web3Provider;
 let _web3WebSocketProvider;
 
 const HOST = "127.0.0.1";
-const HTTP_PORT = "8502";
-const WS_PORT = "8163";
+const HTTP_PORT = "7545";
+const WS_PORT = "7545";
 
 const HTTP_URL = "http://" + HOST + ":" + HTTP_PORT;
 const WS_URL = "ws://" + HOST + ":" + WS_PORT;
