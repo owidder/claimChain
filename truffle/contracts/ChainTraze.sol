@@ -17,8 +17,8 @@ contract ChainTraze {
     mapping (string => uint) lastBlockNumbers;
     mapping (string => uint) totalRewards;
     
-    event Position(string id, uint x, uint y, uint reward);
-    event Position2(string id, string x, string y, uint reward);
+    event Position(string id, uint x, uint y);
+    event Position2(string id, string x, string y);
     event Error(string message);
     event Reward(string id, uint reward, uint totalReward);
     
@@ -84,6 +84,13 @@ contract ChainTraze {
         str = string(b);
     }
     
+    function addressToString(address x) internal pure returns (string) {
+        bytes memory b = new bytes(20);
+        for (uint i = 0; i < 20; i++)
+            b[i] = byte(uint8(uint(x) / (2**(8*(19 - i)))));
+        return string(b);
+    }
+    
     function goIntoField(string id, uint x, uint y) internal {
             uint index = computeIndex(x, y);
             field[index] = id;
@@ -102,7 +109,7 @@ contract ChainTraze {
             return false;
         }
         if(msg.sender != addressForId) {
-            Error("id belongs to: " + idToAddress);
+            Error("id does not belong to sender");
             return false;
         }
 
