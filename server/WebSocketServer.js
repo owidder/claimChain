@@ -31,7 +31,7 @@ class WebSocketServer {
     connect(port) {
         const wss = new WebSocket.Server({port});
 
-        const _id = this.idGenerator(0);
+        const _id = WebSocketServer.idGenerator(0);
 
         wss.on('connection', (ws) => {
             const socketId = _id.next().value;

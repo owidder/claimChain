@@ -1,21 +1,57 @@
-import React, { Component } from 'react';
+import * as _ from 'lodash';
+import React, {Component} from 'react';
 import logo from './logo.svg';
 import './App.css';
+import {connect} from './webSocket/webSocketHub';
+
+const renderEventReturnValues = (returnValues) => {
+    const valueStrings = [];
+    _.keys(returnValues).forEach((key) => {
+        valueStrings.push(key + ":" + returnValues[key]);
+    })
+
+    return <span>
+        {valueStrings.join("<br>")}
+    </span>
+}
+
+const renderEvent = (event) => {
+    return (
+        <tr>
+            <td>
+                {event.event}
+            </td>
+            <td>
+                {renderEventReturnValues(event.returnValues)}
+            </td>
+        </tr>
+    )
+}
 
 class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload.
-        </p>
-      </div>
-    );
-  }
+
+    constructor(props) {
+        super(props);
+        this.state = {events: []}
+    }
+
+    newEvent(event) {
+        this.setState({events: [...this.state.events, event]})
+    }
+
+    componentDidMount() {
+        connect(1337, (event) => this.newEvent(event));
+    }
+
+    render() {
+        return (
+            <div className="App">
+                <table>
+                    {this.state.events.map((event) => renderEvent(event))}
+                </table>
+            </div>
+        );
+    }
 }
 
 export default App;
