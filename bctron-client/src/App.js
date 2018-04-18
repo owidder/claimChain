@@ -1,18 +1,37 @@
 import * as _ from 'lodash';
 import React, {Component} from 'react';
-import logo from './logo.svg';
 import './App.css';
+import 'materialize-css/dist/css/materialize.css';
 import {connect} from './webSocket/webSocketHub';
+
+const isValueKey = (key) => {
+    return isNaN(key);
+}
 
 const renderEventReturnValues = (returnValues) => {
     const valueStrings = [];
     _.keys(returnValues).forEach((key) => {
-        valueStrings.push(key + ":" + returnValues[key]);
+        if(isValueKey(key)) {
+            valueStrings.push(returnValues[key]);
+        }
     })
 
-    return <span>
-        {valueStrings.join("<br>")}
-    </span>
+    return <pre>
+        {valueStrings.join("\n")}
+    </pre>
+}
+
+const renderEventReturnKeys = (returnValues) => {
+    const keyStrings = [];
+    _.keys(returnValues).forEach((key) => {
+        if(isValueKey(key)) {
+            keyStrings.push(key);
+        }
+    })
+
+    return <pre>
+        {keyStrings.join("\n")}
+    </pre>
 }
 
 const renderEvent = (event) => {
@@ -20,6 +39,9 @@ const renderEvent = (event) => {
         <tr key={event.transactionHash}>
             <td>
                 {event.event}
+            </td>
+            <td>
+                {renderEventReturnKeys(event.returnValues)}
             </td>
             <td>
                 {renderEventReturnValues(event.returnValues)}
@@ -50,6 +72,7 @@ class App extends Component {
                     <thead>
                         <tr>
                             <th>Event</th>
+                            <th>Keys</th>
                             <th>Values</th>
                         </tr>
                     </thead>
