@@ -20,6 +20,8 @@ contract ChainTraze {
     event Position(string id, uint x, uint y);
     event Position2(string id, string x, string y);
     event Error(string message);
+    event IdAlreadyExistsError(string id);
+    event PositionIsNotFreeError(string id, uint x, uint y);
     event Reward(string id, uint reward, uint totalReward);
     
     function computeIndex(uint x, uint y) pure internal returns(uint index) {
@@ -44,19 +46,19 @@ contract ChainTraze {
     function checkId(string id) internal returns(bool) {
         address existingAddress = idToAddress[id];
         if(existingAddress != address(0x0)) {
-            Error("id already exists");
+            IdAlreadyExistsError(id);
             return false;
         }
         
         return true;
     }
     
-    function checkPosition(uint x, uint y) internal returns(bool) {
+    function checkPosition(string id, uint x, uint y) internal returns(bool) {
         uint index = computeIndex(x, y);
         string storage content = field[index];
         uint len = bytes(content).length;
         if(len > 0) {
-            Error("position not free");
+            PositionIsNotFreeError(id, x, y);
             return false;
         }
         
@@ -125,7 +127,7 @@ contract ChainTraze {
             int _ny = int(currenty) + dy;
             int nextx = _nx < 0 ? int(X_DIM) - 1 : (_nx >= int(X_DIM) ? 0 : _nx);
             int nexty = _ny < 0 ? int(Y_DIM) - 1 : (_ny >= int(Y_DIM) ? 0 : _ny);
-            if(checkPosition(uint(nextx), uint(nexty))) {
+            if(checkPosition(id, uint(nextx), uint(nexty))) {
                 goIntoField(id, uint(nextx), uint(nexty));
                 computeReward(id);
             }
@@ -170,7 +172,7 @@ contract ChainTraze {
     }
     
     function register(string id, uint startx, uint starty) public {
-        if(checkId(id) && checkPosition(startx, starty)) {
+        if(checkId(id) && checkPosition(id, startx, starty)) {
             registerId(id);
             goIntoField(id, startx, starty);
         }
