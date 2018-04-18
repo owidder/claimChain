@@ -21,6 +21,8 @@ contract ChainTraze {
     event Position2(string id, string x, string y);
     event Error(string message);
     event IdAlreadyExistsError(string id);
+    event IdDoesNotExistError(string id);
+    event IdDoesNotBelongToSender(string id);
     event PositionIsNotFreeError(string id, uint x, uint y);
     event Reward(string id, uint reward, uint totalReward);
     
@@ -105,70 +107,54 @@ contract ChainTraze {
             Position2(id, sx, sy);
     }
 
-    function isAllowed(string id) internal returns(bool) {
-        address addressForId = idToAddress[id];
-        if(addressForId == address(0x0)) {
-            Error("id does not exist");
-            return false;
-        }
-        if(msg.sender != addressForId) {
-            Error("id does not belong to sender");
-            return false;
-        }
-
-        return true;
-    }
-
-    function move(string id, int dx, int dy) internal {
-        if(isAllowed(id)) {
-            uint currentx = xpositions[id];
-            uint currenty = ypositions[id];
-            int _nx = int(currentx) + dx;
-            int _ny = int(currenty) + dy;
-            int nextx = _nx < 0 ? int(X_DIM) - 1 : (_nx >= int(X_DIM) ? 0 : _nx);
-            int nexty = _ny < 0 ? int(Y_DIM) - 1 : (_ny >= int(Y_DIM) ? 0 : _ny);
-            if(checkPosition(id, uint(nextx), uint(nexty))) {
-                goIntoField(id, uint(nextx), uint(nexty));
-                computeReward(id);
-            }
+    function move(int dx, int dy) internal {
+        string storage id = addressToId[msg.sender];
+        uint currentx = xpositions[id];
+        uint currenty = ypositions[id];
+        int _nx = int(currentx) + dx;
+        int _ny = int(currenty) + dy;
+        int nextx = _nx < 0 ? int(X_DIM) - 1 : (_nx >= int(X_DIM) ? 0 : _nx);
+        int nexty = _ny < 0 ? int(Y_DIM) - 1 : (_ny >= int(Y_DIM) ? 0 : _ny);
+        if(checkPosition(id, uint(nextx), uint(nexty))) {
+            goIntoField(id, uint(nextx), uint(nexty));
+            computeReward(id);
         }
     }
     
     function registerId(string id) internal {
         addressToId[msg.sender] = id;
-        idToAddress[id] = msg.sender;
     }
 
-    function north(string id) public {
-        move(id, 0, -1);
+    function north() public {
+        move(0, -1);
     }
 
-    function northwest(string id) public {
-        move(id, -1, -1);
+    function northwest() public {
+        move(-1, -1);
     }
 
-    function west(string id) public {
-        move(id, -1, 0);
+    function west() public {
+        move(-1, 0);
     }
 
-    function southwest(string id) public {
-        move(id, -1, 1);
+    function southwest() public {
+        move(-1, 1);
     }
 
-    function south(string id) public {
-        move(id, 0, 1);
+    function south() public {
+        move(0, 1);
     }
 
-    function southeast(string id) public {
-        move(id, 1, 1);
+    function southeast() public {
+        move(1, 1);
     }
 
-    function east(string id) public {
-        move(id, 1, 0);
+    function east() public {
+        move(1, 0);
     }
 
-    function northeast(string id) public {
-        move(id, 1, -1);
+    function northeast() public {
+        move(1, -1);
     }
     
     function register(string id, uint startx, uint starty) public {
