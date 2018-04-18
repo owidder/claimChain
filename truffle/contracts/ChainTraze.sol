@@ -97,14 +97,15 @@ contract ChainTraze {
     }
     
     function goIntoField(string id, uint x, uint y) internal {
-            uint index = computeIndex(x, y);
-            field[index] = id;
-            xpositions[id] = x;
-            ypositions[id] = y;
-            Position(id, x, y);
-            string memory sx = uintToString(x);
-            string memory sy = uintToString(y);
-            Position2(id, sx, sy);
+        uint index = computeIndex(x, y);
+        field[index] = id;
+        xpositions[id] = x;
+        ypositions[id] = y;
+        Position(id, x, y);
+        string memory sx = uintToString(x);
+        string memory sy = uintToString(y);
+        Position2(id, sx, sy);
+        computeReward(id);
     }
 
     function move(int dx, int dy) internal {
@@ -117,7 +118,6 @@ contract ChainTraze {
         int nexty = _ny < 0 ? int(Y_DIM) - 1 : (_ny >= int(Y_DIM) ? 0 : _ny);
         if(checkPosition(id, uint(nextx), uint(nexty))) {
             goIntoField(id, uint(nextx), uint(nexty));
-            computeReward(id);
         }
     }
     
