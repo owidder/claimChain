@@ -17,7 +17,7 @@ const renderEventReturnValues = (returnValues) => {
 
 const renderEvent = (event) => {
     return (
-        <tr>
+        <tr key={event.transactionHash}>
             <td>
                 {event.event}
             </td>
@@ -47,7 +47,15 @@ class App extends Component {
         return (
             <div className="App">
                 <table>
-                    {this.state.events.map((event) => renderEvent(event))}
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Values</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {this.state.events.map((event) => renderEvent(event))}
+                    </tbody>
                 </table>
             </div>
         );
