@@ -36,7 +36,7 @@ const renderEventReturnKeys = (returnValues) => {
 
 const renderEvent = (event) => {
     return (
-        <tr key={event.transactionHash}>
+        <tr key={event.transactionHash + "." + event.event}>
             <td>
                 {event.event}
             </td>

@@ -5,20 +5,17 @@ const eventUtil = require('./util/eventUtil');
 
 const webSocketServer = new WebSocketServer();
 
-eventsUtil.subscribe(contracts.ChainTraze, "Position").on('event', (event) => {
-    eventUtil.saveEvent(event);
-    webSocketServer.sendObjectToAllSockets(event);
-});
+const eventsToListenTo = [
+    "Position", "Reward",
+    "IdAlreadyExistsError", "PositionIsNotFreeError"
+]
 
-eventsUtil.subscribe(contracts.ChainTraze, "Error").on('event', (event) => {
-    eventUtil.saveEvent(event);
-    webSocketServer.sendObjectToAllSockets(event);
-});
-
-eventsUtil.subscribe(contracts.ChainTraze, "Reward").on('event', (event) => {
-    eventUtil.saveEvent(event);
-    webSocketServer.sendObjectToAllSockets(event);
-});
+eventsToListenTo.forEach((eventName) => {
+    eventsUtil.subscribe(contracts.ChainTraze, eventName).on('event', (event) => {
+        eventUtil.saveEvent(event);
+        webSocketServer.sendObjectToAllSockets(event);
+    });
+})
 
 webSocketServer.onConnectCallback = (socketId) => {
     eventUtil.getAllEvents().forEach((event) => {
