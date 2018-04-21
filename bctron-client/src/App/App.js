@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import React, {Component} from 'react';
 import './App.css';
 import 'materialize-css/dist/css/materialize.css';
-import {connect} from './webSocket/webSocketHub';
+import {addListener} from '../blockChain/blockChainEvents';
 
 const isValueKey = (key) => {
     return isNaN(key);
@@ -62,7 +62,7 @@ class App extends Component {
     }
 
     componentDidMount() {
-        connect(1337, (event) => this.newEvent(event));
+        addListener((event) => this.newEvent(event));
     }
 
     render() {
