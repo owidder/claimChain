@@ -7,7 +7,8 @@ const webSocketServer = new WebSocketServer();
 
 const eventsToListenTo = [
     "Position", "Reward",
-    "IdAlreadyExistsError", "PositionIsNotFreeError"
+    "IdAlreadyExistsError", "PositionIsNotFreeError",
+    "TestPosition"
 ]
 
 eventsToListenTo.forEach((eventName) => {

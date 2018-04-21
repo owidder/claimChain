@@ -14,6 +14,9 @@ const WS_PORT = "7545";
 const HTTP_URL = "http://" + HOST + ":" + HTTP_PORT;
 const WS_URL = "ws://" + HOST + ":" + WS_PORT;
 
+console.log(HTTP_URL);
+console.log(WS_URL);
+
 const getWeb3 = () => {
     if(_.isUndefined(_web3)) {
         _web3 = new Web3(getWeb3Provider());
