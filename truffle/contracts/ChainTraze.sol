@@ -2,8 +2,8 @@ pragma solidity ^0.4.19;
 
 contract ChainTraze {
     
-    int constant X_DIM = 1000;
-    int constant Y_DIM = 1000;
+    int constant X_DIM = 100;
+    int constant Y_DIM = 100;
     int constant FIELD_SIZE = X_DIM*Y_DIM;
     
     mapping (address => int256) balances;
@@ -43,6 +43,7 @@ contract ChainTraze {
     event IdDoesNotExistError(string id);
     event IdDoesNotBelongToSender(string id);
     event PositionIsNotFreeError(string id, int x, int y);
+    event PositionIsOutsideOfFieldError(string id, int x, int y);
     event Reward(string id, int reward, int totalReward);
     event TestPosition(string id, int x, int y);
     
@@ -74,8 +75,17 @@ contract ChainTraze {
         
         return true;
     }
-    
-    function checkPosition(string id, int x, int y) internal returns(bool) {
+
+    function isOutsideField(string id, int x, int y) internal returns(bool) {
+        if(x < 0 || x >= X_DIM || y < 0 || y >= Y_DIM) {
+            PositionIsOutsideOfFieldError(id, x, y);
+            return false;
+        }
+
+        return true;
+    }
+
+    function isOccupied(string id, int x, int y) internal returns(bool) {
         uint index = computeIndex(x, y);
         string storage content = field[index];
         uint len = bytes(content).length;
@@ -85,6 +95,10 @@ contract ChainTraze {
         }
         
         return true;
+    }
+    
+    function checkPosition(string id, int x, int y) internal returns(bool) {
+        return !isOutsideField(id, x, y) && !isOccupied(id, x, y);
     }
     
     function goIntoField(string id, int x, int y) internal {
@@ -100,12 +114,11 @@ contract ChainTraze {
         string storage id = addressToId[msg.sender];
         int currentx = getXPosition(id);
         int currenty = getYPosition(id);
-        int _nx = int(currentx) + dx;
-        int _ny = int(currenty) + dy;
-        int nextx = _nx < 0 ? int(X_DIM) - 1 : (_nx >= int(X_DIM) ? 0 : _nx);
-        int nexty = _ny < 0 ? int(Y_DIM) - 1 : (_ny >= int(Y_DIM) ? 0 : _ny);
-        if(checkPosition(id, int(nextx), int(nexty))) {
-            goIntoField(id, int(nextx), int(nexty));
+        int nextx = currentx + dx;
+        int nexty = currenty + dy;
+
+        if(checkPosition(id, nextx, nexty)) {
+            goIntoField(id, nextx, nexty);
         }
     }
     

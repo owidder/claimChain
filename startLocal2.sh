@@ -1,1 +1,2 @@
+#!/usr/bin/env bash
 geth --datadir ~/Library/Ethereum --syncmode 'full' --port 30312 --rpc --rpcaddr 'localhost' --rpccorsdomain "http://localhost:8080" --rpcport 8502 --rpcapi 'personal,db,eth,net,web3,txpool,miner,debug,admin' --gasprice '0' --ws --wsapi "db,eth,net,web3,personal" --wsport 8163 --wsaddr 'localhost' --wsorigins "*" --networkid 46953 -unlock '7b1c541c75ddfc058c9c293b116ac052449c9af7' --password ./password.txt --mine
