@@ -15,6 +15,9 @@ export class Field {
         const _rectWidth = width / DIM_X;
         const _rectHeight = height / DIM_Y;
         this.rectSize = Math.min(_rectHeight, _rectWidth);
+        this.tileSize = this.rectSize + (2 * MARGIN + GRID_THICKNESS);
+        this.fieldWidth = this.tileSize * DIM_X;
+        this.fieldHeight = this.tileSize * DIM_Y;
 
         this.root = d3.select(containerSelector)
             .append("svg")
@@ -26,11 +29,11 @@ export class Field {
     }
 
     xcoord(xpos) {
-        return xpos * (this.rectSize + (2 * MARGIN + GRID_THICKNESS)) + MARGIN;
+        return xpos * this.tileSize + MARGIN;
     }
 
     ycoord(ypos) {
-        return ypos * (this.rectSize + (2 * MARGIN + GRID_THICKNESS)) + MARGIN;
+        return ypos * this.tileSize + MARGIN;
     }
 
     drawGridX() {
@@ -41,7 +44,7 @@ export class Field {
             .attr("x1", d => (this.xcoord(d) - MARGIN))
             .attr("y1", 0)
             .attr("x2", d => (this.xcoord(d) - MARGIN))
-            .attr("y2", this.height)
+            .attr("y2", this.fieldWidth)
             .attr("stroke", "black")
     }
 
@@ -52,7 +55,7 @@ export class Field {
             .append("line")
             .attr("x1", 0)
             .attr("y1", d => (this.ycoord(d) - MARGIN))
-            .attr("x2", this.width)
+            .attr("x2", this.fieldHeight)
             .attr("y2", d => (this.xcoord(d) - MARGIN))
             .attr("stroke", "black")
     }
