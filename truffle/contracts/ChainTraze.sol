@@ -46,6 +46,7 @@ contract ChainTraze {
     event PositionIsOutsideOfFieldError(string id, int x, int y);
     event Reward(string id, int reward, int totalReward);
     event TestPosition(string id, int x, int y);
+    event TestPosition2(string id, int x, int y);
     
     function computeIndex(int x, int y) pure internal returns(uint index) {
         index = uint(y * X_DIM + x);
@@ -58,7 +59,7 @@ contract ChainTraze {
         int reward = lastBlockNumber > 0 ? (diff > 1 ? diff : 0) : 0;
         lastBlockNumbers[id] = currentBlockNumber;
         totalRewards[id] += reward;
-        Reward(id, reward, totalRewards[id]);
+        emit Reward(id, reward, totalRewards[id]);
     }
     
     function getPositionContent(int x, int y) public view returns(string) {
@@ -69,28 +70,28 @@ contract ChainTraze {
     function checkId(string id) internal returns(bool) {
         address existingAddress = idToAddress[id];
         if(existingAddress != address(0x0)) {
-            IdAlreadyExistsError(id);
+            emit IdAlreadyExistsError(id);
             return false;
         }
         
         return true;
     }
 
-    function isOutsideField(string id, int x, int y) internal returns(bool) {
+    function isInsideField(string id, int x, int y) internal returns(bool) {
         if(x < 0 || x >= X_DIM || y < 0 || y >= Y_DIM) {
-            PositionIsOutsideOfFieldError(id, x, y);
+            emit PositionIsOutsideOfFieldError(id, x, y);
             return false;
         }
 
         return true;
     }
 
-    function isOccupied(string id, int x, int y) internal returns(bool) {
+    function isFree(string id, int x, int y) internal returns(bool) {
         uint index = computeIndex(x, y);
         string storage content = field[index];
         uint len = bytes(content).length;
         if(len > 0) {
-            PositionIsNotFreeError(id, x, y);
+            emit PositionIsNotFreeError(id, x, y);
             return false;
         }
         
@@ -98,7 +99,7 @@ contract ChainTraze {
     }
     
     function checkPosition(string id, int x, int y) internal returns(bool) {
-        return !isOutsideField(id, x, y) && !isOccupied(id, x, y);
+        return isInsideField(id, x, y) && isFree(id, x, y);
     }
     
     function goIntoField(string id, int x, int y) internal {
@@ -106,7 +107,7 @@ contract ChainTraze {
         field[index] = id;
         setXposition(id, x);
         setYposition(id, y);
-        Position(id, x, y);
+        emit Position(id, x, y);
         computeReward(id);
     }
 
@@ -160,8 +161,12 @@ contract ChainTraze {
     
     function register(string id, int startx, int starty) public {
         if(checkId(id) && checkPosition(id, startx, starty)) {
+            emit TestPosition(id, startx, starty);
             registerId(id);
             goIntoField(id, startx, starty);
+        }
+        else {
+            emit TestPosition2(id, startx, starty);
         }
     }
 }
