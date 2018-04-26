@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import React, {Component} from 'react';
 import 'materialize-css/dist/css/materialize.css';
-import {addListenerForPositions} from '../blockChain/blockChainEvents';
+import {addListenerForClonedPositions} from '../blockChain/blockChainEvents';
 import * as $ from "jquery";
 import {Field} from './Field';
 
@@ -22,7 +22,7 @@ export class FieldApp extends Component {
 
     componentDidMount() {
         this.field = new Field("div.field", width, height);
-        addListenerForPositions((newPositions) => this.newPositions(newPositions));
+        addListenerForClonedPositions((newPositions) => this.newPositions(newPositions));
     }
 
     render() {
