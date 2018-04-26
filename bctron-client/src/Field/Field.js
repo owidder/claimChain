@@ -84,6 +84,10 @@ export class Field {
             .attr("height", this.rectSize)
             .attr("x", d => this.xcoord(d.x))
             .attr("y", d => this.ycoord(d.y))
-            .attr("fill", d => colorScale(d.id));
+            .attr("fill", d => colorScale(d.id))
+            .merge(data)
+            .attr("class", d => "position" + (d.head ? " head" : ""))
+            .attr("rx", d => (d.head ? this.rectSize / 2 : 0))
+            .attr("ry", d => (d.head ? this.rectSize / 2 : 0))
     }
 }

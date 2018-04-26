@@ -50,7 +50,7 @@ const newPositionEvent = (positionEvent) => {
         positions[id].push(position);
     }
 
-    sendOneThingToManyListeners(positions, listenersForPositions);
+    sendOneThingToManyListeners(_.cloneDeep(positions), listenersForPositions);
 }
 
 const newEvent = (event) => {
