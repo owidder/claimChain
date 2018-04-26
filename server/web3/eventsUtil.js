@@ -21,8 +21,8 @@ const subscribeWithEthers = (truffleContract, eventName) => {
 
     const contractEventEmitter = new ContractEventEmitter();
 
-    provider.on(_interface.events[eventName].topics, function (log) {
-        const data = _interface.events[eventName].parse(log.data);
+    provider.on(_interface.positions[eventName].topics, function (log) {
+        const data = _interface.positions[eventName].parse(log.data);
         contractEventEmitter.emit('event', data);
     });
 

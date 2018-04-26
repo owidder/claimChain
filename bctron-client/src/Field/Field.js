@@ -60,8 +60,23 @@ export class Field {
             .attr("stroke", "black")
     }
 
+    extendPositions(positions) {
+        const extendedPositions = [];
+        _.forOwn(positions, (positionsForId) => {
+            const size = positionsForId.length;
+            if(size > 0) {
+                const extendedPositionsForId = [...positionsForId];
+                extendedPositionsForId[size-1].head = true;
+                Array.prototype.push.apply(extendedPositions, extendedPositionsForId);
+            }
+        });
+
+        return extendedPositions;
+    }
+
     drawPositions(positions) {
-        const data = this.root.selectAll("rect.position").data(positions);
+        const _extendedPositions = this.extendPositions(positions);
+        const data = this.root.selectAll("rect.position").data(_extendedPositions);
 
         data.enter()
             .append("rect")

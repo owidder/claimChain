@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import React, {Component} from 'react';
 import './App.css';
 import 'materialize-css/dist/css/materialize.css';
-import {addListener} from '../blockChain/blockChainEvents';
+import {addListenerForAllEvents} from '../blockChain/blockChainEvents';
 
 const isValueKey = (key) => {
     return isNaN(key);
@@ -58,11 +58,11 @@ class App extends Component {
     }
 
     newEvent(event) {
-        this.setState({events: [...this.state.events, event]})
+        this.setState({events: [...this.state.positions, event]})
     }
 
     componentDidMount() {
-        addListener((event) => this.newEvent(event));
+        addListenerForAllEvents((event) => this.newEvent(event));
     }
 
     render() {
@@ -77,7 +77,7 @@ class App extends Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {this.state.events.map((event) => renderEvent(event))}
+                        {this.state.positions.map((event) => renderEvent(event))}
                     </tbody>
                 </table>
             </div>

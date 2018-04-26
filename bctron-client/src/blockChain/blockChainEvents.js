@@ -1,26 +1,69 @@
+import * as _ from 'lodash';
 import {connect} from '../webSocket/webSocketHub';
 
-const events = [];
-const listeners = [];
+const allEvents = [];
+const listenersForAllEvents = [];
 
-const sendAllEventsToListener = (listener) => {
-    events.forEach((event) => {
-        listener(event);
+const positions = {};
+const listenersForPositions = [];
+
+/**
+ *
+ * @param manyThings array, send piece by piece to the oneListener
+ * @param oneListener
+ */
+const sendManyThingsToOneListener = (manyThings, oneListener) => {
+    manyThings.forEach((event) => {
+        oneListener(event);
     })
 }
 
-export const addListener = (listener) => {
-    sendAllEventsToListener(listener);
-    listeners.push(listener);
+/**
+ *
+ * @param oneThing could be anything, even an array, but send as one thing to all of the manyListeners
+ * @param manyListeners array of listeners
+ */
+const sendOneThingToManyListeners = (oneThing, manyListeners) => {
+    manyListeners.forEach((listener) => {
+        listener(oneThing);
+    })
 }
 
-export const sendEventToAllListeners = (event) => {
-    listeners.forEach((listener) => {
-        listener(event);
-    })
+export const addListenerForAllEvents = (listener) => {
+    sendManyThingsToOneListener(allEvents, listener);
+    listenersForAllEvents.push(listener);
+}
+
+export const addListenerForPositions = (listener) => {
+    listenersForPositions.push(listener);
+    listener(positions);
+}
+
+const newPositionEvent = (positionEvent) => {
+    const position = positionEvent.returnValues;
+    const id = position.id;
+
+    if(_.isEmpty(positions[id])) {
+        positions[id] = [position];
+    }
+    else {
+        positions[id].push(position);
+    }
+
+    sendOneThingToManyListeners(positions, listenersForPositions);
+}
+
+const newEvent = (event) => {
+    allEvents.push(event);
+    sendOneThingToManyListeners(event, listenersForAllEvents);
+
+    switch (event.event) {
+        case "Position":
+            newPositionEvent(event);
+            break;
+    }
 }
 
 connect(1337, (event) => {
-    events.push(event);
-    sendEventToAllListeners(event);
+    newEvent(event);
 });
