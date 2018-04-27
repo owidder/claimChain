@@ -5,11 +5,7 @@ const eventUtil = require('./util/eventUtil');
 
 const webSocketServer = new WebSocketServer();
 
-const eventsToListenTo = [
-    "Position", "Reward",
-    "IdAlreadyExistsError", "PositionIsNotFreeError",
-    "TestPosition"
-]
+const eventsToListenTo = contracts.getEventNames(contracts.ChainTraze);
 
 eventsToListenTo.forEach((eventName) => {
     eventsUtil.subscribe(contracts.ChainTraze, eventName).on('event', (event) => {

@@ -37,14 +37,13 @@ contract ChainTraze {
         return ypositions[id] - 1;
     }
     
-    event Position(string id, int x, int y);
+    event Position(string id, int x, int y, int reward, int totalReward);
     event Error(string message);
     event IdAlreadyExistsError(string id);
     event IdDoesNotExistError(string id);
     event IdDoesNotBelongToSender(string id);
     event PositionIsNotFreeError(string id, int x, int y);
     event PositionIsOutsideOfFieldError(string id, int x, int y);
-    event Reward(string id, int reward, int totalReward);
     event TestPosition(string id, int x, int y);
     event TestPosition2(string id, int x, int y);
     
@@ -52,14 +51,14 @@ contract ChainTraze {
         index = uint(y * X_DIM + x);
     }
 
-    function computeReward(string id) internal {
+    function computeReward(string id) internal returns(int _reward, int _totalReward){
         int lastBlockNumber = lastBlockNumbers[id];
         int currentBlockNumber = int(block.number);
         int diff = currentBlockNumber - lastBlockNumber;
         int reward = lastBlockNumber > 0 ? (diff > 1 ? diff : 0) : 0;
         lastBlockNumbers[id] = currentBlockNumber;
         totalRewards[id] += reward;
-        emit Reward(id, reward, totalRewards[id]);
+        return (reward, totalRewards[id]);
     }
     
     function getPositionContent(int x, int y) public view returns(string) {
@@ -107,8 +106,10 @@ contract ChainTraze {
         field[index] = id;
         setXposition(id, x);
         setYposition(id, y);
-        emit Position(id, x, y);
-        computeReward(id);
+        int reward;
+        int totalReward;
+        (reward, totalReward) = computeReward(id);
+        emit Position(id, x, y, reward, totalReward);
     }
 
     function move(int dx, int dy) internal {
@@ -161,12 +162,8 @@ contract ChainTraze {
     
     function register(string id, int startx, int starty) public {
         if(checkId(id) && checkPosition(id, startx, starty)) {
-            emit TestPosition(id, startx, starty);
             registerId(id);
             goIntoField(id, startx, starty);
-        }
-        else {
-            emit TestPosition2(id, startx, starty);
         }
     }
 }

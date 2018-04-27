@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import React, {Component} from 'react';
-import './App.css';
+import './EventList.css';
 import 'materialize-css/dist/css/materialize.css';
 import {addListenerForAllEvents} from '../blockChain/blockChainEvents';
 
@@ -36,7 +36,7 @@ const renderEventReturnKeys = (returnValues) => {
 
 const renderEvent = (event) => {
     return (
-        <tr key={event.transactionHash + "." + event.event}>
+        <tr key={event.signature + "." + event.event + "." + event.transactionHash}>
             <td>
                 {event.event}
             </td>
@@ -50,7 +50,7 @@ const renderEvent = (event) => {
     )
 }
 
-class App extends Component {
+export class EventList extends Component {
 
     constructor(props) {
         super(props);
@@ -58,7 +58,7 @@ class App extends Component {
     }
 
     newEvent(event) {
-        this.setState({events: [...this.state.positions, event]})
+        this.setState({events: [...this.state.events, event]})
     }
 
     componentDidMount() {
@@ -77,12 +77,10 @@ class App extends Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {this.state.positions.map((event) => renderEvent(event))}
+                        {this.state.events.map((event) => renderEvent(event))}
                     </tbody>
                 </table>
             </div>
         );
     }
 }
-
-export default App;

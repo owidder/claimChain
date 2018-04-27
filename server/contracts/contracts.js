@@ -23,13 +23,18 @@ const getDefaultAddress = (truffleContract) => {
     return addresses[0].address;
 }
 
+const getEventNames = (truffleContract) => {
+    return _.values(truffleContract.events).map(event => event.name);
+}
+
 const sayHello = (truffleContract) => {
     console.log(truffleContract.contractName + " [" + getDefaultAddress(truffleContract) + "]");
 }
 
 sayHello(ChainTraze);
+getEventNames(ChainTraze);
 
 module.exports = {
-    getAddresses, getDefaultAddress,
+    getAddresses, getDefaultAddress, getEventNames,
     ChainTraze
 }

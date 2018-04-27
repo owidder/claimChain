@@ -7,6 +7,9 @@ const listenersForAllEvents = [];
 const positions = {};
 const listenersForClonedPositions = [];
 
+const rewards = {};
+const listenersForCurrentRewards = [];
+
 /**
  *
  * @param manyThings array, send piece by piece to the oneListener
