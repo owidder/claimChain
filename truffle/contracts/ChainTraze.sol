@@ -5,6 +5,8 @@ contract ChainTraze {
     int constant X_DIM = 100;
     int constant Y_DIM = 100;
     int constant FIELD_SIZE = X_DIM*Y_DIM;
+    int constant PENALTY = -2;
+    int constant BUMP = 10;
     
     mapping (address => int256) balances;
     
@@ -42,13 +44,26 @@ contract ChainTraze {
     event IdAlreadyExistsError(string id);
     event IdDoesNotExistError(string id);
     event IdDoesNotBelongToSender(string id);
-    event PositionIsNotFreeError(string id, int x, int y);
-    event PositionIsOutsideOfFieldError(string id, int x, int y);
-    event TestPosition(string id, int x, int y);
-    event TestPosition2(string id, int x, int y);
+    event PositionIsNotFreeError(string id, int x, int y, int reward, int totalReward);
+    event PositionIsOutsideOfFieldError(string id, int x, int y, int reward, int totalReward);
     
     function computeIndex(int x, int y) pure internal returns(uint index) {
         index = uint(y * X_DIM + x);
+    }
+
+    function addReward(string id, int reward) internal returns(int _totalReward) {
+        if(totalRewards[id] != 0 && totalRewards[id] == (reward * -1)) {
+            if(totalRewards[id] > 0) {
+                totalRewards[id] = -BUMP;
+            }
+            else {
+                totalRewards[id] = BUMP;
+            }
+        }
+        else {
+            totalRewards[id] += reward;
+        }
+        return totalRewards[id];
     }
 
     function computeReward(string id) internal returns(int _reward, int _totalReward){
@@ -57,8 +72,8 @@ contract ChainTraze {
         int diff = currentBlockNumber - lastBlockNumber;
         int reward = lastBlockNumber > 0 ? (diff > 1 ? diff : 0) : 0;
         lastBlockNumbers[id] = currentBlockNumber;
-        totalRewards[id] += reward;
-        return (reward, totalRewards[id]);
+        int totalReward = addReward(id, reward);
+        return (reward, totalReward);
     }
     
     function getPositionContent(int x, int y) public view returns(string) {
@@ -78,7 +93,8 @@ contract ChainTraze {
 
     function isInsideField(string id, int x, int y) internal returns(bool) {
         if(x < 0 || x >= X_DIM || y < 0 || y >= Y_DIM) {
-            emit PositionIsOutsideOfFieldError(id, x, y);
+            int totalReward = addReward(id, PENALTY);
+            emit PositionIsOutsideOfFieldError(id, x, y, PENALTY, totalReward);
             return false;
         }
 
@@ -90,7 +106,8 @@ contract ChainTraze {
         string storage content = field[index];
         uint len = bytes(content).length;
         if(len > 0) {
-            emit PositionIsNotFreeError(id, x, y);
+            int totalReward = addReward(id, PENALTY);
+            emit PositionIsNotFreeError(id, x, y, PENALTY, totalReward);
             return false;
         }
         
