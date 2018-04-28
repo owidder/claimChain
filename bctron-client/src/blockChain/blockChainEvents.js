@@ -4,17 +4,11 @@ import {connect} from '../webSocket/webSocketHub';
 const allEvents = [];
 const listenersForAllEvents = [];
 
-const positions = {};
-const listenersForClonedPositions = [];
-
 const positionsArray = [];
 const listenersForPositions = [];
 
-const heads = {};
+const headPositions = {};
 const listenersForHeadPositions = [];
-
-const rewards = {};
-const listenersForCurrentRewards = [];
 
 /**
  *
@@ -48,26 +42,20 @@ export const addListenerForPositions = (listener) => {
     listenersForPositions.push(listener);
 }
 
-export const addListenerForClonedPositions = (listener) => {
-    listenersForClonedPositions.push(listener);
-    listener(positions);
+export const addListenerForHeadPositions = (listener) => {
+    listener(headPositions);
+    listenersForHeadPositions.push(listener);
 }
 
 const newPositionEvent = (positionEvent) => {
     const position = positionEvent.returnValues;
     const id = position.id;
 
-    if(_.isEmpty(positions[id])) {
-        positions[id] = [position];
-    }
-    else {
-        positions[id].push(position);
-    }
-
-    sendOneThingToManyListeners(_.cloneDeep(positions), listenersForClonedPositions);
-
     positionsArray.push(position);
     sendOneThingToManyListeners(position, listenersForPositions);
+
+    headPositions[id] = position;
+    sendOneThingToManyListeners(headPositions, listenersForHeadPositions);
 }
 
 const newEvent = (event) => {
