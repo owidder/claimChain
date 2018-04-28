@@ -6,6 +6,29 @@ import './Field.css';
 
 const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
+const emptyCell = (x, y) => {
+    return {
+        x, y,
+        id: "",
+        events: []
+    }
+}
+
+const emptyFlattenedMatrix = () => {
+    const flattenedMatrix = [];
+    _.range(DIM_Y).forEach((y) => {
+        _.range(DIM_X).forEach((x) => {
+            flattenedMatrix.push(emptyCell(x, y));
+        })
+    });
+
+    return flattenedMatrix;
+}
+
+const flattenCoords = (x, y) => {
+    return Number(y) * DIM_X + Number(x);
+}
+
 export class Field {
     constructor(containerSelector, width, height) {
         this.width = width;
@@ -31,6 +54,8 @@ export class Field {
 
         this.drawGridX();
         this.drawGridY();
+
+        this.flattenedMatrix = emptyFlattenedMatrix();
     }
 
     xcoord(xpos) {
@@ -65,6 +90,12 @@ export class Field {
             .attr("stroke", "black")
     }
 
+    newPosition(position) {
+        const index = flattenCoords(position.x, position.y);
+        this.flattenedMatrix[index] = position;
+        this.drawMatrix();
+    }
+
     extendPositions(positions) {
         const extendedPositions = [];
         _.forOwn(positions, (positionsForId) => {
@@ -79,6 +110,20 @@ export class Field {
         return extendedPositions;
     }
 
+    drawMatrix() {
+        const data = this.grects.selectAll("rect.position").data(this.flattenedMatrix, d => d.x + "-" + d.y);
+
+        data.enter()
+            .append("rect")
+            .attr("width", this.tileSize)
+            .attr("height", this.tileSize)
+            .attr("x", d => this.xcoord(d.x))
+            .attr("y", d => this.ycoord(d.y))
+            .merge(data)
+            .attr("fill", d => _.isEmpty(d.id) ? "white" : colorScale(d.id))
+            .attr("class", d => "position" + (d.head ? " head" : "") + " " + d.x + " " + d.y)
+    }
+
     drawPositions(positions) {
         const _extendedPositions = this.extendPositions(positions);
         const data = this.grects.selectAll("rect.position").data(_extendedPositions, d => d.id + "." + d.x + "." + d.y);
@@ -89,7 +134,7 @@ export class Field {
             .attr("height", this.tileSize)
             .attr("x", d => this.xcoord(d.x))
             .attr("y", d => this.ycoord(d.y))
-            .attr("fill", d => colorScale(d.id))
+            .attr("fill", d => _.isEmpty(d.id) ? "white" : colorScale(d.id))
             .merge(data)
             .attr("class", d => "position" + (d.head ? " head" : "") + " " + d.x + " " + d.y)
             .attr("rx", d => (d.head ? this.tileSize / 2 : 0))

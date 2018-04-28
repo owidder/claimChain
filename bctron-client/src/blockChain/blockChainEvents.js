@@ -7,6 +7,12 @@ const listenersForAllEvents = [];
 const positions = {};
 const listenersForClonedPositions = [];
 
+const positionsArray = [];
+const listenersForPositions = [];
+
+const heads = {};
+const listenersForHeadPositions = [];
+
 const rewards = {};
 const listenersForCurrentRewards = [];
 
@@ -37,6 +43,11 @@ export const addListenerForAllEvents = (listener) => {
     listenersForAllEvents.push(listener);
 }
 
+export const addListenerForPositions = (listener) => {
+    sendManyThingsToOneListener(positionsArray, listener);
+    listenersForPositions.push(listener);
+}
+
 export const addListenerForClonedPositions = (listener) => {
     listenersForClonedPositions.push(listener);
     listener(positions);
@@ -54,6 +65,9 @@ const newPositionEvent = (positionEvent) => {
     }
 
     sendOneThingToManyListeners(_.cloneDeep(positions), listenersForClonedPositions);
+
+    positionsArray.push(position);
+    sendOneThingToManyListeners(position, listenersForPositions);
 }
 
 const newEvent = (event) => {
