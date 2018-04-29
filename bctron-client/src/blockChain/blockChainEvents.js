@@ -48,7 +48,9 @@ export const addListenerForHeadPositions = (listener) => {
 }
 
 const newPositionEvent = (positionEvent) => {
-    const position = positionEvent.returnValues;
+    const hash = positionEvent.transactionHash;
+    const blockNumber = positionEvent.blockNumber;
+    const position = {...positionEvent.returnValues, hash, blockNumber};
     const id = position.id;
 
     positionsArray.push(position);

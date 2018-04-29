@@ -1,18 +1,19 @@
 import * as d3 from 'd3';
 import * as _ from 'lodash';
 import {DIM_X, DIM_Y} from '../blockChain/info';
+import {guid} from '../util/random';
 
 import './Field.css';
 
 const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
-const history = {};
-
 const emptyFlattenedMatrix = () => {
     const flattenedMatrix = [];
     _.range(DIM_Y).forEach((y) => {
         _.range(DIM_X).forEach((x) => {
-            flattenedMatrix.push({x, y, id: ""});
+            const hash = guid();
+            const id = "";
+            flattenedMatrix.push({id, x, y, hash});
         })
     });
 
@@ -28,9 +29,12 @@ const idFromPosition = (position) => {
 }
 
 export class SvgField {
-    constructor(containerSelector, width, height) {
+    constructor(containerSelector, width, height, hoverCallback) {
+        const self = this;
+
         this.width = width;
         this.height = height;
+        this.hoverCallback = hoverCallback;
 
         const _tileWidth = width / DIM_X;
         const _tileHeight = height / DIM_Y;
@@ -41,7 +45,20 @@ export class SvgField {
         this.root = d3.select(containerSelector)
             .append("svg")
             .attr("width", width)
-            .attr("height", height);
+            .attr("height", height)
+            .on("mouseout", () => {
+                if(_.isFunction(this.hoverCallback)) {
+                    self.isOver = false;
+                    if(_.isUndefined(self.timer)) {
+                        self.timer = setTimeout(() => {
+                            self.timer = undefined;
+                            if(!self.isOver) {
+                                this.hoverCallback(undefined, undefined, []);
+                            }
+                        }, 5000);
+                    }
+                }
+            })
 
         this.root.append("g").attr("class", "rects");
 
@@ -54,6 +71,9 @@ export class SvgField {
         this.drawGridY();
 
         this.flattenedMatrix = emptyFlattenedMatrix();
+        this.history = {};
+
+        this.isOver = false;
     }
 
     xcoord(xpos) {
@@ -90,12 +110,21 @@ export class SvgField {
 
     putInHistory(position) {
         const id = idFromPosition(position);
-        if(_.isUndefined(history[id])) {
-            history[id] = [position];
+        if(_.isUndefined(this.history[id])) {
+            this.history[id] = [position];
         }
         else {
-            history[id].push(position);
+            this.history[id].push(position);
         }
+    }
+
+    getHistoryIncludingCurrentPosition(position) {
+        const id = idFromPosition(position);
+        const history = this.history[id];
+        if(_.isEmpty(history)) {
+            return [position];
+        }
+        return [...history, position];
     }
 
     newPosition(position) {
@@ -138,5 +167,12 @@ export class SvgField {
             .merge(data)
             .attr("fill", d => _.isEmpty(d.id) ? "white" : colorScale(d.id))
             .attr("class", d => "position " + idFromPosition(d))
+            .on("mouseover", d => {
+                this.isOver = true;
+                if(_.isFunction(this.hoverCallback)) {
+                    const historyIncludingCurrentPosition = this.getHistoryIncludingCurrentPosition(d);
+                    this.hoverCallback(d.x, d.y, historyIncludingCurrentPosition);
+                }
+            })
     }
 }
