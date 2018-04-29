@@ -49,9 +49,9 @@ export class Field extends Component {
                 <div className="field col s10">
                 </div>
                 <div className="lists col s2">
-                    <History x={Number(this.state.x)} y={Number(this.state.y)} positions={this.state.history}/>
-                    <br/>
                     <TotalRewards idToReward={this.state.totalRewards}/>
+                    <br/>
+                    <History x={Number(this.state.x)} y={Number(this.state.y)} positions={this.state.history}/>
                 </div>
             </div>
         )

@@ -8,16 +8,26 @@ export class TotalRewards extends Component {
         super(props);
     }
 
-    renderRewardRow(id) {
-
-        const totalReward = this.props.idToReward[id];
+    renderRewardRow(rewardObject) {
 
         return (
-            <tr>
-                <td>{id}</td>
-                <td>{totalReward}</td>
+            <tr key={rewardObject.id}>
+                <td>{rewardObject.id}</td>
+                <td>{rewardObject.reward}</td>
             </tr>
         )
+    }
+
+    sortedRewardArray() {
+        const rewardArray = _.keys(this.props.idToReward).map((id) => {
+            const reward = this.props.idToReward[id];
+            return {id, reward}
+        });
+        rewardArray.sort((a, b) => {
+            return a.reward < b.reward;
+        });
+
+        return rewardArray;
     }
 
     render() {
@@ -31,7 +41,7 @@ export class TotalRewards extends Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {_.keys(this.props.idToReward).map(id => this.renderRewardRow(id))}
+                        {this.sortedRewardArray().map((rewardObject) => this.renderRewardRow(rewardObject))}
                     </tbody>
                 </table>
             </div>
