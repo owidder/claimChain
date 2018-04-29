@@ -46,6 +46,7 @@ contract ChainTraze {
     event IdDoesNotBelongToSender(string id);
     event PositionIsNotFreeError(string id, int x, int y, int reward, int totalReward, int currentx, int currenty);
     event PositionIsOutsideOfFieldError(string id, int x, int y, int reward, int totalReward, int currentx, int currenty);
+    event IdNotValid(string id);
     
     function computeIndex(int x, int y) pure internal returns(uint index) {
         index = uint(y * X_DIM + x);
@@ -81,9 +82,14 @@ contract ChainTraze {
         return field[index];
     }
 
-    function checkIdIsValid(string id) internal view returns(bool) {
+    function checkIdIsValid(string id) internal returns(bool) {
         address existingAddress = idToAddress[id];
-        return (existingAddress != address(0x0));
+        if(existingAddress == address(0x0)) {
+            emit IdNotValid(id);
+            return false;
+        }
+
+        return true;
     }
     
     function checkIdIsFree(string id) internal returns(bool) {
@@ -100,6 +106,7 @@ contract ChainTraze {
             if(checkIdIsValid(id)) {
                 int totalReward = addReward(id, PENALTY);
                 emit PositionIsOutsideOfFieldError(id, x, y, PENALTY, totalReward, currentx, currenty);
+                emit Position(id, currentx, currenty, PENALTY, totalReward);
             }
             else {
                 emit PositionIsOutsideOfFieldError(id, x, y, -1, -1, -1, -1);
@@ -118,6 +125,7 @@ contract ChainTraze {
             if(checkIdIsValid(id)) {
                 int totalReward = addReward(id, PENALTY);
                 emit PositionIsNotFreeError(id, x, y, PENALTY, totalReward, currentx, currenty);
+                emit Position(id, currentx, currenty, PENALTY, totalReward);
             }
             else {
                 emit PositionIsNotFreeError(id, x, y, -1, -1, -1, -1);
@@ -157,6 +165,7 @@ contract ChainTraze {
     
     function registerId(string id) internal {
         addressToId[msg.sender] = id;
+        idToAddress[id] = msg.sender;
     }
 
     function north() public {
