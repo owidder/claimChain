@@ -46,6 +46,23 @@ const subscribeViaWebsockets = (truffleContract, eventName) => {
     return contractEventEmitter;
 }
 
+const pastEvents = (truffleContract, eventName) => {
+    const contractEventEmitter = new ContractEventEmitter();
+    const web3 = web3Util.getWeb3();
+    const contract = new web3.eth.Contract(truffleContract.abi, contracts.getDefaultAddress(truffleContract));
+    const options = {fromBlock: 0, toBlock: "latest"};
+    contract.getPastEvents(eventName, options, (error, data) => {
+        if(!error) {
+            contractEventEmitter.emit('event', data);
+        }
+        else {
+            console.error(error);
+        }
+    });
+
+    return contractEventEmitter;
+}
+
 module.exports = {
-    subscribe
+    subscribe, pastEvents
 }

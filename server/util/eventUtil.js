@@ -4,11 +4,11 @@ const eventsAsString = [];
 
 const checkForDouble = (event) => {
     const eventAsString = JSON.stringify(event);
-    if(eventAsString.indexOf(eventAsString) > -1) {
+    if(eventsAsString.indexOf(eventAsString) > -1) {
         console.warn("Double event!");
     }
     else {
-        eventAsString.push(eventAsString);
+        eventsAsString.push(eventAsString);
     }
 }
 

@@ -7,10 +7,20 @@ const webSocketServer = new WebSocketServer();
 
 const eventsToListenTo = contracts.getEventNames(contracts.ChainTraze);
 
+const newEvent = (event) => {
+    eventUtil.saveEvent(event);
+    webSocketServer.sendObjectToAllSockets(event);
+}
+
 eventsToListenTo.forEach((eventName) => {
+    eventsUtil.pastEvents(contracts.ChainTraze, eventName).on('event', (events) => {
+        events.forEach((event) => {
+            newEvent(event);
+        })
+    });
+
     eventsUtil.subscribe(contracts.ChainTraze, eventName).on('event', (event) => {
-        eventUtil.saveEvent(event);
-        webSocketServer.sendObjectToAllSockets(event);
+        newEvent(event);
     });
 })
 
