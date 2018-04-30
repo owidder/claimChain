@@ -24,7 +24,7 @@ export class TotalRewards extends Component {
             return {id, reward}
         });
         rewardArray.sort((a, b) => {
-            return a.reward < b.reward;
+            return Number(a.reward) < Number(b.reward);
         });
 
         return rewardArray;

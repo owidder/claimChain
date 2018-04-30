@@ -10,6 +10,7 @@ const renderPositionRow = (position) => {
                 <td>-</td>
                 <td>-</td>
                 <td>-</td>
+                <td>-</td>
             </tr>
         )
     }
@@ -19,6 +20,7 @@ const renderPositionRow = (position) => {
             <td>{position.id}</td>
             <td>{position.reward}</td>
             <td>{position.totalReward}</td>
+            <td>{position.remarks}</td>
         </tr>
     )
 }
@@ -30,6 +32,7 @@ const renderHeadRow = () => {
             <th>id</th>
             <th>reward</th>
             <th>total</th>
+            <th>remarks</th>
         </tr>
     )
 }

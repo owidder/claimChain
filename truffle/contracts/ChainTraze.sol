@@ -40,7 +40,7 @@ contract ChainTraze {
         return ypositions[id] - 1;
     }
     
-    event Position(string id, int x, int y, int reward, int totalReward, int remarks);
+    event Position(string id, int x, int y, int reward, int totalReward, string remarks);
     event Error(string message);
     event IdAlreadyExistsError(string id);
     event IdDoesNotExistError(string id);
@@ -115,11 +115,11 @@ contract ChainTraze {
         return true;
     }
 
-    function sendReward(string fromId, string toId, int reward, int fromx, int fromy, int tox, int toy, string remarks) {
+    function sendReward(string fromId, string toId, int reward, int fromx, int fromy, int tox, int toy, string remarks) internal {
         int fromTotalReward = addReward(fromId, -reward);
         emit Position(fromId, fromx, fromy, -reward, fromTotalReward, remarks);
         int toTotalReward = addReward(toId, reward);
-        emit Position(toId, tox, toy, reward, totalReward, remarks);
+        emit Position(toId, tox, toy, reward, toTotalReward, remarks);
     }
 
     function processNotFree(string id, int x, int y) internal {
@@ -131,13 +131,13 @@ contract ChainTraze {
         if(isHead) {
             int totalRewardOfIdInField = totalRewards[idInField];
             if(totalRewardOfIdInField == 0) {
-                sendReward(idInField, id, 100, xpositionOfIdInField, ypositionOfIdInField, x, y, "head);
+                sendReward(idInField, id, 100, xpositionOfIdInField, ypositionOfIdInField, x, y, "head");
             }
             else if(totalRewardOfIdInField > 0) {
-                sendReward(idInField, id, totalRewardOfIdInField + 100, xpositionOfIdInField, ypositionOfIdInField, x, y, "head);
+                sendReward(idInField, id, totalRewardOfIdInField + 100, xpositionOfIdInField, ypositionOfIdInField, x, y, "head");
             }
             else {
-                sendReward(idInField, id, -totalRewardOfIdInField, xpositionOfIdInField, ypositionOfIdInField, x, y, "head);
+                sendReward(idInField, id, -totalRewardOfIdInField, xpositionOfIdInField, ypositionOfIdInField, x, y, "head");
             }
         }
         else {
@@ -156,12 +156,9 @@ contract ChainTraze {
 
     function isFree(int x, int y) internal view returns(bool) {
         uint index = computeIndex(x, y);
+        string storage idInField = field[index];
         uint len = bytes(idInField).length;
         return (len == 0);
-    }
-    
-    function checkPosition(string id, int x, int y, int currentx, int currenty) internal returns(bool) {
-        return isInsideField(id, x, y, currentx, currenty) && isFree(id, x, y, currentx, currenty);
     }
     
     function goIntoField(string id, int x, int y) internal {
@@ -172,11 +169,11 @@ contract ChainTraze {
         int reward;
         int totalReward;
         (reward, totalReward) = computeReward(id);
-        emit Position(id, x, y, reward, totalReward);
+        emit Position(id, x, y, reward, totalReward, "move");
     }
 
     function setHeadFlag(bool headFlag, int x, int y) internal {
-        int index = computeIndex(x, y);
+        uint index = computeIndex(x, y);
         headFlags[index] = headFlag;
     }
 
@@ -240,7 +237,7 @@ contract ChainTraze {
             emit IdAlreadyExistsError(id);
         }
         else if(!isFree(startx, starty)) {
-            emit PositionIsNotFreeError(id, x, y);
+            emit PositionIsNotFreeError(id, startx, starty);
         }
         else {
             registerId(id);
