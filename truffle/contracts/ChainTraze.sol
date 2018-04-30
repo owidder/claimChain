@@ -11,6 +11,7 @@ contract ChainTraze {
     mapping (address => int256) balances;
     
     string[FIELD_SIZE] field;
+    bool[FIELD_SIZE] headFlags;
 
     mapping (address => string) addressToId;
     mapping (string => address) idToAddress;
@@ -39,13 +40,13 @@ contract ChainTraze {
         return ypositions[id] - 1;
     }
     
-    event Position(string id, int x, int y, int reward, int totalReward);
+    event Position(string id, int x, int y, int reward, int totalReward, int remarks);
     event Error(string message);
     event IdAlreadyExistsError(string id);
     event IdDoesNotExistError(string id);
     event IdDoesNotBelongToSender(string id);
-    event PositionIsNotFreeError(string id, int x, int y, int reward, int totalReward, int currentx, int currenty);
-    event PositionIsOutsideOfFieldError(string id, int x, int y, int reward, int totalReward, int currentx, int currenty);
+    event PositionIsNotFreeError(string id, int x, int y);
+    event PositionIsOutsideOfFieldError(string id, int x, int y);
     event IdNotValid(string id);
     
     function computeIndex(int x, int y) pure internal returns(uint index) {
@@ -103,13 +104,10 @@ contract ChainTraze {
 
     function isInsideField(string id, int x, int y, int currentx, int currenty) internal returns(bool) {
         if(x < 0 || x >= X_DIM || y < 0 || y >= Y_DIM) {
+            emit PositionIsOutsideOfFieldError(id, x, y);
             if(checkIdIsValid(id)) {
                 int totalReward = addReward(id, PENALTY);
-                emit PositionIsOutsideOfFieldError(id, x, y, PENALTY, totalReward, currentx, currenty);
-                emit Position(id, currentx, currenty, PENALTY, totalReward);
-            }
-            else {
-                emit PositionIsOutsideOfFieldError(id, x, y, -1, -1, -1, -1);
+                emit Position(id, currentx, currenty, PENALTY, totalReward, "PositionIsOutsideOfFieldError");
             }
             return false;
         }
@@ -117,23 +115,49 @@ contract ChainTraze {
         return true;
     }
 
-    function isFree(string id, int x, int y, int currentx, int currenty) internal returns(bool) {
+    function sendReward(string fromId, string toId, int reward, int fromx, int fromy, int tox, int toy, string remarks) {
+        int fromTotalReward = addReward(fromId, -reward);
+        emit Position(fromId, fromx, fromy, -reward, fromTotalReward, remarks);
+        int toTotalReward = addReward(toId, reward);
+        emit Position(toId, tox, toy, reward, totalReward, remarks);
+    }
+
+    function processNotFree(string id, int x, int y) internal {
         uint index = computeIndex(x, y);
-        string storage content = field[index];
-        uint len = bytes(content).length;
-        if(len > 0) {
-            if(checkIdIsValid(id)) {
-                int totalReward = addReward(id, PENALTY);
-                emit PositionIsNotFreeError(id, x, y, PENALTY, totalReward, currentx, currenty);
-                emit Position(id, currentx, currenty, PENALTY, totalReward);
+        string storage idInField = field[index];
+        bool isHead = headFlags[index];
+        int xpositionOfIdInField = xpositions[idInField];
+        int ypositionOfIdInField = ypositions[idInField];
+        if(isHead) {
+            int totalRewardOfIdInField = totalRewards[idInField];
+            if(totalRewardOfIdInField == 0) {
+                sendReward(idInField, id, 100, xpositionOfIdInField, ypositionOfIdInField, x, y, "head);
+            }
+            else if(totalRewardOfIdInField > 0) {
+                sendReward(idInField, id, totalRewardOfIdInField + 100, xpositionOfIdInField, ypositionOfIdInField, x, y, "head);
             }
             else {
-                emit PositionIsNotFreeError(id, x, y, -1, -1, -1, -1);
+                sendReward(idInField, id, -totalRewardOfIdInField, xpositionOfIdInField, ypositionOfIdInField, x, y, "head);
             }
-            return false;
         }
-        
-        return true;
+        else {
+            int totalReward = totalRewards[idInField];
+            if(totalReward == 0) {
+                sendReward(id, idInField, 100, x, y, xpositionOfIdInField, ypositionOfIdInField, "tail");
+            }
+            else if(totalReward > 0) {
+                sendReward(id, idInField, totalReward + 100, x, y, xpositionOfIdInField, ypositionOfIdInField, "tail");
+            }
+            else {
+                sendReward(id, idInField, -totalReward, x, y, xpositionOfIdInField, ypositionOfIdInField, "tail");
+            }
+        }
+    }
+
+    function isFree(int x, int y) internal view returns(bool) {
+        uint index = computeIndex(x, y);
+        uint len = bytes(idInField).length;
+        return (len == 0);
     }
     
     function checkPosition(string id, int x, int y, int currentx, int currenty) internal returns(bool) {
@@ -151,6 +175,11 @@ contract ChainTraze {
         emit Position(id, x, y, reward, totalReward);
     }
 
+    function setHeadFlag(bool headFlag, int x, int y) internal {
+        int index = computeIndex(x, y);
+        headFlags[index] = headFlag;
+    }
+
     function move(int dx, int dy) internal {
         string storage id = addressToId[msg.sender];
         int currentx = getXPosition(id);
@@ -158,7 +187,13 @@ contract ChainTraze {
         int nextx = currentx + dx;
         int nexty = currenty + dy;
 
-        if(checkPosition(id, nextx, nexty, currentx, currenty)) {
+        setHeadFlag(false, currentx, currenty);
+        setHeadFlag(true, nextx, nexty);
+
+        if(isInsideField(id, nextx, nexty, currentx, currenty)) {
+            if(!isFree(nextx, nexty)) {
+                processNotFree(id, nextx, nexty);
+            }
             goIntoField(id, nextx, nexty);
         }
     }
@@ -201,7 +236,13 @@ contract ChainTraze {
     }
     
     function register(string id, int startx, int starty) public {
-        if(checkIdIsFree(id) && checkPosition(id, startx, starty, -1, -1)) {
+        if(checkIdIsValid(id)) {
+            emit IdAlreadyExistsError(id);
+        }
+        else if(!isFree(startx, starty)) {
+            emit PositionIsNotFreeError(id, x, y);
+        }
+        else {
             registerId(id);
             goIntoField(id, startx, starty);
         }
