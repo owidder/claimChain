@@ -11,9 +11,10 @@ const emptyFlattenedMatrix = () => {
     const flattenedMatrix = [];
     _.range(DIM_Y).forEach((y) => {
         _.range(DIM_X).forEach((x) => {
-            const hash = guid();
+            const uuid = guid();
+            const hash = "0";
             const id = "";
-            flattenedMatrix.push({id, x, y, hash});
+            flattenedMatrix.push({id, x, y, hash, uuid});
         })
     });
 

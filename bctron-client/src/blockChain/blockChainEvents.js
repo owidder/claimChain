@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import {connect} from '../webSocket/webSocketHub';
+import {guid} from '../util/random';
 
 const allEvents = [];
 const listenersForAllEvents = [];
@@ -48,9 +49,10 @@ export const addListenerForHeadPositions = (listener) => {
 }
 
 const newPositionEvent = (positionEvent) => {
+    const uuid = guid();
     const hash = positionEvent.transactionHash;
     const blockNumber = positionEvent.blockNumber;
-    const position = {...positionEvent.returnValues, hash, blockNumber};
+    const position = {...positionEvent.returnValues, hash, blockNumber, uuid};
     const id = position.id;
 
     positionsArray.push(position);

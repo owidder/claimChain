@@ -22,6 +22,12 @@ module.exports = {
             port: 8545,
             network_id: 4,
             from: "0x8202da978bf626e1abdb4cd90d6528551537c760"
+        },
+        eth01 : {
+            host: "127.0.0.1",
+            port: 6545,
+            network_id: 4,
+            from: "0x8202da978bf626e1abdb4cd90d6528551537c760"
         }
     }
 };

@@ -15,7 +15,7 @@ const renderPositionRow = (position) => {
         )
     }
     return (
-        <tr key={position.hash}>
+        <tr key={position.uuid}>
             <td>{position.blockNumber}</td>
             <td>{position.id}</td>
             <td>{position.reward}</td>
