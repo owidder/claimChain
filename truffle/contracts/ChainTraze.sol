@@ -53,7 +53,7 @@ contract ChainTraze {
         index = uint(y * X_DIM + x);
     }
 
-    function addReward(string id, int reward) internal returns(int _totalReward) {
+    function addReward(string id, int reward, int x, int y, string remarks) internal {
         if(totalRewards[id] != 0 && totalRewards[id] == (reward * -1)) {
             if(totalRewards[id] > 0) {
                 totalRewards[id] = -BUMP;
@@ -65,17 +65,16 @@ contract ChainTraze {
         else {
             totalRewards[id] += reward;
         }
-        return totalRewards[id];
+        emit Position(id, x, y, reward, totalRewards[id], remarks);
     }
 
-    function computeReward(string id) internal returns(int _reward, int _totalReward){
+    function computeReward(string id) internal returns(int _reward){
         int lastBlockNumber = lastBlockNumbers[id];
         int currentBlockNumber = int(block.number);
         int diff = currentBlockNumber - lastBlockNumber;
         int reward = lastBlockNumber > 0 ? (diff > 1 ? diff : 0) : 0;
         lastBlockNumbers[id] = currentBlockNumber;
-        int totalReward = addReward(id, reward);
-        return (reward, totalReward);
+        return reward;
     }
     
     function getPositionContent(int x, int y) public view returns(string) {
@@ -106,8 +105,7 @@ contract ChainTraze {
         if(x < 0 || x >= X_DIM || y < 0 || y >= Y_DIM) {
             emit PositionIsOutsideOfFieldError(id, x, y);
             if(checkIdIsValid(id)) {
-                int totalReward = addReward(id, PENALTY);
-                emit Position(id, currentx, currenty, PENALTY, totalReward, "PositionIsOutsideOfFieldError");
+                addReward(id, PENALTY, currentx, currenty, "PositionIsOutsideOfFieldError");
             }
             return false;
         }
@@ -116,38 +114,53 @@ contract ChainTraze {
     }
 
     function sendReward(string fromId, string toId, int reward, int x, int y, string remarks) internal {
-        int fromTotalReward = addReward(fromId, -reward);
-        emit Position(fromId, x, y, -reward, fromTotalReward, remarks);
-        int toTotalReward = addReward(toId, reward);
-        emit Position(toId, x, y, reward, toTotalReward, remarks);
+        addReward(fromId, -reward, x, y, remarks);
+        addReward(toId, reward, x, y, remarks);
     }
 
-    function processNotFree(string id, int x, int y) internal {
-        uint index = computeIndex(x, y);
-        string storage idInField = field[index];
-        bool isHead = headFlags[index];
-        if(isHead) {
-            int totalRewardOfIdInField = totalRewards[idInField];
-            if(totalRewardOfIdInField == 0) {
-                sendReward(idInField, id, 100, x, y, "head");
-            }
-            else if(totalRewardOfIdInField > 0) {
-                sendReward(idInField, id, totalRewardOfIdInField + 100, x, y, "head");
-            }
-            else {
-                sendReward(idInField, id, -totalRewardOfIdInField, x, y, "head");
-            }
+    function processHeadCollision(string id, string otherId, int x, int y) internal {
+        int otherTotalReward = totalRewards[otherId];
+        if(otherTotalReward >= 0) {
+            sendReward(otherId, id, otherTotalReward + 100, x, y, "head");
         }
         else {
-            int totalReward = totalRewards[idInField];
-            if(totalReward == 0) {
-                sendReward(id, idInField, 100, x, y, "tail");
-            }
-            else if(totalReward > 0) {
-                sendReward(id, idInField, totalReward + 100, x, y, "tail");
+            sendReward(otherId, id, -otherTotalReward, x, y, "head");
+        }
+    }
+
+    function processTailCollision(string id, string otherId, int x, int y) internal {
+        int totalReward = totalRewards[otherId];
+        if(totalReward >= 0) {
+            sendReward(id, otherId, totalReward + 100, x, y, "tail");
+        }
+        else {
+            sendReward(id, otherId, -totalReward, x, y, "tail");
+        }
+    }
+
+    function processSelfCollision(string id, int x, int y) internal {
+        int totalReward = totalRewards[id];
+        if(totalReward >= 0) {
+            addReward(id, -totalReward - 100, x, y, "self");
+        }
+        else {
+            addReward(id, -totalReward, x, y, "self");
+        }
+    }
+
+    function processCollision(string id, int x, int y) internal {
+        uint index = computeIndex(x, y);
+        string storage otherId = field[index];
+        if(keccak256(id) == keccak256(otherId)) {
+            processSelfCollision(id, x, y);
+        }
+        else {
+            bool isHead = headFlags[index];
+            if(isHead) {
+                processHeadCollision(id, otherId, x, y);
             }
             else {
-                sendReward(id, idInField, -totalReward, x, y, "tail");
+                processTailCollision(id, otherId, x, y);
             }
         }
     }
@@ -164,10 +177,8 @@ contract ChainTraze {
         field[index] = id;
         setXposition(id, x);
         setYposition(id, y);
-        int reward;
-        int totalReward;
-        (reward, totalReward) = computeReward(id);
-        emit Position(id, x, y, reward, totalReward, "move");
+        int reward = computeReward(id);
+        addReward(id, reward, x, y, "move");
     }
 
     function setHeadFlag(bool headFlag, int x, int y) internal {
@@ -187,7 +198,7 @@ contract ChainTraze {
 
         if(isInsideField(id, nextx, nexty, currentx, currenty)) {
             if(!isFree(nextx, nexty)) {
-                processNotFree(id, nextx, nexty);
+                processCollision(id, nextx, nexty);
             }
             goIntoField(id, nextx, nexty);
         }
