@@ -115,41 +115,39 @@ contract ChainTraze {
         return true;
     }
 
-    function sendReward(string fromId, string toId, int reward, int fromx, int fromy, int tox, int toy, string remarks) internal {
+    function sendReward(string fromId, string toId, int reward, int x, int y, string remarks) internal {
         int fromTotalReward = addReward(fromId, -reward);
-        emit Position(fromId, fromx, fromy, -reward, fromTotalReward, remarks);
+        emit Position(fromId, x, y, -reward, fromTotalReward, remarks);
         int toTotalReward = addReward(toId, reward);
-        emit Position(toId, tox, toy, reward, toTotalReward, remarks);
+        emit Position(toId, x, y, reward, toTotalReward, remarks);
     }
 
     function processNotFree(string id, int x, int y) internal {
         uint index = computeIndex(x, y);
         string storage idInField = field[index];
         bool isHead = headFlags[index];
-        int xpositionOfIdInField = xpositions[idInField];
-        int ypositionOfIdInField = ypositions[idInField];
         if(isHead) {
             int totalRewardOfIdInField = totalRewards[idInField];
             if(totalRewardOfIdInField == 0) {
-                sendReward(idInField, id, 100, xpositionOfIdInField, ypositionOfIdInField, x, y, "head");
+                sendReward(idInField, id, 100, x, y, "head");
             }
             else if(totalRewardOfIdInField > 0) {
-                sendReward(idInField, id, totalRewardOfIdInField + 100, xpositionOfIdInField, ypositionOfIdInField, x, y, "head");
+                sendReward(idInField, id, totalRewardOfIdInField + 100, x, y, "head");
             }
             else {
-                sendReward(idInField, id, -totalRewardOfIdInField, xpositionOfIdInField, ypositionOfIdInField, x, y, "head");
+                sendReward(idInField, id, -totalRewardOfIdInField, x, y, "head");
             }
         }
         else {
             int totalReward = totalRewards[idInField];
             if(totalReward == 0) {
-                sendReward(id, idInField, 100, x, y, xpositionOfIdInField, ypositionOfIdInField, "tail");
+                sendReward(id, idInField, 100, x, y, "tail");
             }
             else if(totalReward > 0) {
-                sendReward(id, idInField, totalReward + 100, x, y, xpositionOfIdInField, ypositionOfIdInField, "tail");
+                sendReward(id, idInField, totalReward + 100, x, y, "tail");
             }
             else {
-                sendReward(id, idInField, -totalReward, x, y, xpositionOfIdInField, ypositionOfIdInField, "tail");
+                sendReward(id, idInField, -totalReward, x, y, "tail");
             }
         }
     }
