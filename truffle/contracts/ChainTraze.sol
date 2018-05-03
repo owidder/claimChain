@@ -48,7 +48,10 @@ contract ChainTraze {
     event PositionIsNotFreeError(string id, int x, int y);
     event PositionIsOutsideOfFieldError(string id, int x, int y);
     event IdNotValid(string id);
-    
+
+    event SetHeadFlag(bool flag, uint index);
+    event GetHeadFlag(bool flag, uint index);
+
     function computeIndex(int x, int y) pure internal returns(uint index) {
         index = uint(y * X_DIM + x);
     }
@@ -156,6 +159,7 @@ contract ChainTraze {
         }
         else {
             bool isHead = headFlags[index];
+            emit GetHeadFlag(isHead, index);
             if(isHead) {
                 processHeadCollision(id, otherId, x, y);
             }
@@ -183,6 +187,7 @@ contract ChainTraze {
 
     function setHeadFlag(bool headFlag, int x, int y) internal {
         uint index = computeIndex(x, y);
+        emit SetHeadFlag(headFlag, index);
         headFlags[index] = headFlag;
     }
 
@@ -193,13 +198,12 @@ contract ChainTraze {
         int nextx = currentx + dx;
         int nexty = currenty + dy;
 
-        setHeadFlag(false, currentx, currenty);
-        setHeadFlag(true, nextx, nexty);
-
         if(isInsideField(id, nextx, nexty, currentx, currenty)) {
             if(!isFree(nextx, nexty)) {
                 processCollision(id, nextx, nexty);
             }
+            setHeadFlag(false, currentx, currenty);
+            setHeadFlag(true, nextx, nexty);
             goIntoField(id, nextx, nexty);
         }
     }
