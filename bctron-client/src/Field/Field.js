@@ -46,13 +46,14 @@ export class Field extends Component {
     render() {
         return (
             <div className="row">
-                <div className="field col s10">
+                <div className="field col s8">
                 </div>
                 <div className="lists col s2">
                     <TotalRewards idToReward={this.state.totalRewards}/>
                     <br/>
                     <History x={Number(this.state.x)} y={Number(this.state.y)} positions={this.state.history}/>
                 </div>
+                <div className="col s2"></div>
             </div>
         )
     }

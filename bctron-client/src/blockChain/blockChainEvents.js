@@ -52,7 +52,9 @@ const newPositionEvent = (positionEvent) => {
     const uuid = guid();
     const hash = positionEvent.transactionHash;
     const blockNumber = positionEvent.blockNumber;
-    const position = {...positionEvent.returnValues, hash, blockNumber, uuid};
+    const transactionIndex = positionEvent.transactionIndex;
+    const logIndex = positionEvent.logIndex;
+    const position = {...positionEvent.returnValues, hash, blockNumber, uuid, transactionIndex, logIndex};
     const id = position.id;
 
     positionsArray.push(position);

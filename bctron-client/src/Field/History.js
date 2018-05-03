@@ -6,17 +6,21 @@ const renderPositionRow = (position) => {
     if(_.isEmpty(position.id)) {
         return (
             <tr key={position.hash}>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
-                <td>-</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
             </tr>
         )
     }
     return (
         <tr key={position.uuid}>
             <td>{position.blockNumber}</td>
+            <td>{position.transactionIndex}</td>
+            <td>{position.logIndex}</td>
             <td>{position.id}</td>
             <td>{position.reward}</td>
             <td>{position.totalReward}</td>
@@ -29,6 +33,8 @@ const renderHeadRow = () => {
     return (
         <tr>
             <th>B#</th>
+            <th>TN#</th>
+            <th>Log#</th>
             <th>id</th>
             <th>reward</th>
             <th>total</th>
