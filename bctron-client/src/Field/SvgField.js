@@ -1,5 +1,7 @@
 import * as d3 from 'd3';
 import * as _ from 'lodash';
+import * as $ from "jquery";
+import 'tooltipster';
 import {DIM_X, DIM_Y} from '../blockChain/info';
 import {guid} from '../util/random';
 
@@ -25,8 +27,8 @@ const flattenCoords = (x, y) => {
     return Number(y) * DIM_X + Number(x);
 }
 
-const idFromPosition = (position) => {
-    return "_" + position.x + "_" + position.y;
+const idFromObjectWithXAndY = (obj) => {
+    return "_" + obj.x + "_" + obj.y;
 }
 
 export class SvgField {
@@ -110,7 +112,7 @@ export class SvgField {
     }
 
     putInHistory(position) {
-        const id = idFromPosition(position);
+        const id = idFromObjectWithXAndY(position);
         if(_.isUndefined(this.history[id])) {
             this.history[id] = [position];
         }
@@ -120,7 +122,7 @@ export class SvgField {
     }
 
     getHistoryIncludingCurrentPosition(position) {
-        const id = idFromPosition(position);
+        const id = idFromObjectWithXAndY(position);
         const history = this.history[id];
         if(_.isEmpty(history)) {
             return [position];
@@ -143,17 +145,21 @@ export class SvgField {
             .classed("head", false);
     }
 
-    addHeadAtPosition(position) {
-        const posClass = idFromPosition(position);
-        this.grects.selectAll("." + posClass)
+    addHead(head) {
+        const xyClass = idFromObjectWithXAndY(head);
+        this.grects.selectAll("." + xyClass)
             .classed("head", true);
     }
 
-    newHeadPositions(headPositions) {
+    drawHeads() {
         this.removeAllHeads();
-        _.values(headPositions).forEach((position) => {
-            this.addHeadAtPosition(position);
+        _.values(this.heads).forEach((head) => {
+            this.addHead(head);
         })
+    }
+
+    newHeads(heads) {
+        this.heads = heads;
     }
 
     drawMatrix() {
@@ -167,13 +173,15 @@ export class SvgField {
             .attr("y", d => this.ycoord(d.y))
             .merge(data)
             .attr("fill", d => _.isEmpty(d.id) ? "white" : colorScale(d.id))
-            .attr("class", d => "position " + idFromPosition(d))
+            .attr("class", d => "tooltip position " + idFromObjectWithXAndY(d))
             .on("mouseover", d => {
                 this.isOver = true;
                 if(_.isFunction(this.hoverCallback)) {
                     const historyIncludingCurrentPosition = this.getHistoryIncludingCurrentPosition(d);
                     this.hoverCallback(d.x, d.y, historyIncludingCurrentPosition);
                 }
-            })
+            });
+
+        this.drawHeads();
     }
 }

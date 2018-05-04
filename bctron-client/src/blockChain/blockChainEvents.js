@@ -8,8 +8,8 @@ const listenersForAllEvents = [];
 const positionsArray = [];
 const listenersForPositions = [];
 
-const headPositions = {};
-const listenersForHeadPositions = [];
+const heads = {};
+const listenersForHeads = [];
 
 /**
  *
@@ -43,9 +43,9 @@ export const addListenerForPositions = (listener) => {
     listenersForPositions.push(listener);
 }
 
-export const addListenerForHeadPositions = (listener) => {
-    listener(headPositions);
-    listenersForHeadPositions.push(listener);
+export const addListenerForHeads = (listener) => {
+    listener(heads);
+    listenersForHeads.push(listener);
 }
 
 const newPositionEvent = (positionEvent) => {
@@ -59,9 +59,13 @@ const newPositionEvent = (positionEvent) => {
 
     positionsArray.push(position);
     sendOneThingToManyListeners(position, listenersForPositions);
+}
 
-    headPositions[id] = position;
-    sendOneThingToManyListeners(headPositions, listenersForHeadPositions);
+const newHeadEvent = (headEvent) => {
+    const head = headEvent.returnValues;
+    const id = head.id;
+    heads[id] = head;
+    sendOneThingToManyListeners(heads, listenersForHeads);
 }
 
 const newEvent = (event) => {
@@ -71,6 +75,10 @@ const newEvent = (event) => {
     switch (event.event) {
         case "Position":
             newPositionEvent(event);
+            break;
+
+        case "NewHead":
+            newHeadEvent(event);
             break;
     }
 }

@@ -47,7 +47,8 @@ contract ChainTraze {
     event IdDoesNotBelongToSender(string id);
     event PositionIsNotFreeError(string id, int x, int y);
     event PositionIsOutsideOfFieldError(string id, int x, int y);
-    event IdNotValid(string id);
+    event IdDoesNotYetExist(string id);
+    event NewHead(string id, int x, int y);
 
     event SetHeadFlag(bool flag, uint index);
     event GetHeadFlag(bool flag, uint index);
@@ -88,7 +89,7 @@ contract ChainTraze {
     function checkIdIsValid(string id) internal returns(bool) {
         address existingAddress = idToAddress[id];
         if(existingAddress == address(0x0)) {
-            emit IdNotValid(id);
+            emit IdDoesNotYetExist(id);
             return false;
         }
 
@@ -132,7 +133,7 @@ contract ChainTraze {
     }
 
     function processTailCollision(string id, string otherId, int x, int y) internal {
-        int totalReward = totalRewards[otherId];
+        int totalReward = totalRewards[id];
         if(totalReward >= 0) {
             sendReward(id, otherId, totalReward + 100, x, y, "tail");
         }
@@ -177,6 +178,7 @@ contract ChainTraze {
     }
     
     function goIntoField(string id, int x, int y) internal {
+        emit NewHead(id, x, y);
         uint index = computeIndex(x, y);
         field[index] = id;
         setXposition(id, x);

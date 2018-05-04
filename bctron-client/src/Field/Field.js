@@ -1,7 +1,8 @@
 import * as _ from 'lodash';
 import React, {Component} from 'react';
-import {addListenerForPositions, addListenerForHeadPositions} from '../blockChain/blockChainEvents';
+import {addListenerForPositions, addListenerForHeads} from '../blockChain/blockChainEvents';
 import * as $ from "jquery";
+import 'tooltipster';
 import {SvgField} from './SvgField';
 import {History} from './History';
 import {TotalRewards} from './TotalRewards';
@@ -40,7 +41,7 @@ export class Field extends Component {
     componentDidMount() {
         this.svgField = new SvgField("div.field", width, height, (x, y, history) => this.newHistory(x, y, history));
         addListenerForPositions((newPosition) => this.newPosition(newPosition));
-        addListenerForHeadPositions((headPositions) => this.svgField.newHeadPositions(headPositions));
+        addListenerForHeads((heads) => this.svgField.newHeads(heads));
     }
 
     render() {
