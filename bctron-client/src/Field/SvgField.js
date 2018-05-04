@@ -7,6 +7,8 @@ import {guid} from '../util/random';
 
 import './Field.css';
 
+const FIELD_PADDING = 20;
+
 const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
 
 const emptyFlattenedMatrix = () => {
@@ -45,10 +47,34 @@ export class SvgField {
         this.fieldWidth = this.tileSize * DIM_X;
         this.fieldHeight = this.tileSize * DIM_Y;
 
-        this.root = d3.select(containerSelector)
+        this.initSvg(containerSelector);
+        this.initAxes();
+        this.initZoom();
+
+        this.flattenedMatrix = emptyFlattenedMatrix();
+        this.history = {};
+
+        this.isOver = false;
+    }
+
+    initSvg(selector) {
+        const self = this;
+
+        const zoomed = () => {
+            self.getRects().attr("transform", d3.event.transform);
+            self.gxaxis.call(self.xAxis.scale(d3.event.transform.rescaleX(self.xScale)));
+            self.gyaxis.call(self.yAxis.scale(d3.event.transform.rescaleY(self.yScale)));
+        }
+
+        const zoom = d3.zoom()
+            .scaleExtent([1, 40])
+            .translateExtent([[-100, -100], [self.fieldWidth + 90, self.fieldHeight + 100]])
+            .on("zoom", zoomed);
+
+        const svg = d3.select(selector)
             .append("svg")
-            .attr("width", width)
-            .attr("height", height)
+            .attr("width", self.width + FIELD_PADDING*2)
+            .attr("height", self.height + FIELD_PADDING*2)
             .on("mouseout", () => {
                 if(_.isFunction(this.hoverCallback)) {
                     self.isOver = false;
@@ -61,22 +87,75 @@ export class SvgField {
                         }, 5000);
                     }
                 }
+            });
+
+        svg.call(zoom);
+
+        this.gfield = svg.append("g")
+            .attr("class", "field")
+            .attr("transform", "translate(" + FIELD_PADDING + ", " + FIELD_PADDING + ")");
+        this.glines = this.gfield.append("g").attr("class", "rects");
+        this.grects = this.gfield.append("g").attr("class", "lines");
+        this.gaxes = this.gfield.append("g").attr("class", "axes");
+
+        this.root = svg;
+    }
+
+    removeAxisLabels(axisSelector) {
+        const textNodes = this.gaxes.selectAll(axisSelector + " text")
+            .each(function () {
+                const textNode = d3.select(this);
+                const number = Number(textNode.text());
+                if(number % 10 != 0) {
+                    textNode.remove();
+                }
             })
+    }
 
-        this.root.append("g").attr("class", "rects");
+    initAxes() {
+        const self = this;
+        this.xScale = d3.scaleLinear()
+            .domain([0, DIM_X])
+            .range([0, self.fieldWidth]);
 
-        this.root.append("g").attr("class", "lines");
+        this.yScale = d3.scaleLinear()
+            .domain([0, DIM_Y])
+            .range([0, self.fieldHeight]);
 
-        this.glines = this.root.select("g.lines");
-        this.grects = this.root.select("g.rects");
+        this.xAxis = d3.axisBottom(self.xScale)
+            .ticks(DIM_X + 1)
+            .tickSize(self.fieldHeight)
+            .tickPadding(-FIELD_PADDING - this.fieldHeight);
 
-        this.drawGridX();
-        this.drawGridY();
+        this.yAxis = d3.axisRight(self.yScale)
+            .ticks(DIM_Y + 1)
+            .tickSize(self.fieldWidth)
+            .tickPadding(-FIELD_PADDING - this.fieldWidth);
 
-        this.flattenedMatrix = emptyFlattenedMatrix();
-        this.history = {};
+        this.gxaxis = this.gaxes.append("g")
+            .attr("class", "axis axis-x")
+            .call(self.xAxis);
 
-        this.isOver = false;
+        this.gyaxis = this.gaxes.append("g")
+            .attr("class", "axis axis-y")
+            .call(self.yAxis);
+
+        this.removeAxisLabels(".axis-x");
+        this.removeAxisLabels(".axis-y");
+    }
+
+    initZoom() {
+        const self = this;
+        const zoomed = () => {
+            self.getRects().attr("transform", d3.event.transform);
+            self.gxaxis.call(self.xAxis.scale(d3.event.transform.rescaleX(self.xScale)));
+            self.gyaxis.call(self.yAxis.scale(d3.event.transform.rescaleY(self.yScale)));
+        }
+
+        const zoom = d3.zoom()
+            .scaleExtent([1, 40])
+            .translateExtent([[-100, -100], [self.fieldWidth + 90, self.fieldHeight + 100]])
+            .on("zoom", zoomed);
     }
 
     xcoord(xpos) {
@@ -162,6 +241,10 @@ export class SvgField {
         this.heads = heads;
     }
 
+    getRects() {
+        return this.gfield.selectAll("rect.position");
+    }
+
     drawMatrix() {
         const data = this.grects.selectAll("rect.position").data(this.flattenedMatrix, d => d.x + "-" + d.y);
 
@@ -173,7 +256,7 @@ export class SvgField {
             .attr("y", d => this.ycoord(d.y))
             .merge(data)
             .attr("fill", d => _.isEmpty(d.id) ? "white" : colorScale(d.id))
-            .attr("class", d => "tooltip position " + idFromObjectWithXAndY(d))
+            .attr("class", d => "position " + idFromObjectWithXAndY(d))
             .on("mouseover", d => {
                 this.isOver = true;
                 if(_.isFunction(this.hoverCallback)) {
