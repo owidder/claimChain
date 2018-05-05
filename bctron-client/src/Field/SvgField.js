@@ -81,8 +81,8 @@ export class SvgField {
     positionTooltip(x, y) {
         const tooltip = $(TOOLTIP_SELECTOR);
         tooltip.css({
-            left: x,
-            top: y
+            left: x + 50,
+            top: y + 50
         });
     }
 
@@ -122,7 +122,6 @@ export class SvgField {
         this.gfield = svg.append("g")
             .attr("class", "field")
             .attr("transform", "translate(" + FIELD_PADDING + ", " + FIELD_PADDING + ")");
-        this.glines = this.gfield.append("g").attr("class", "rects");
         this.grects = this.gfield.append("g").attr("class", "lines");
         this.gaxes = this.gfield.append("g").attr("class", "axes");
 
@@ -178,30 +177,6 @@ export class SvgField {
 
     ycoord(ypos) {
         return ypos * this.tileSize;
-    }
-
-    drawGridX() {
-        this.glines.selectAll("line.gridx")
-            .data(_.range(0, DIM_X + 1))
-            .enter()
-            .append("line")
-            .attr("x1", d => (this.xcoord(d)))
-            .attr("y1", 0)
-            .attr("x2", d => (this.xcoord(d)))
-            .attr("y2", this.fieldWidth)
-            .attr("stroke", "black")
-    }
-
-    drawGridY() {
-        this.glines.selectAll("line.gridy")
-            .data(_.range(0, DIM_Y + 1))
-            .enter()
-            .append("line")
-            .attr("x1", 0)
-            .attr("y1", d => (this.ycoord(d)))
-            .attr("x2", this.fieldHeight)
-            .attr("y2", d => (this.xcoord(d)))
-            .attr("stroke", "black")
     }
 
     putInHistory(position) {
@@ -282,9 +257,11 @@ export class SvgField {
 
                 self.startTooltip(d.x + " / " + d.y + (_.isEmpty(d.id) ? "" : " (" + d.id + ")"));
             })
+/*
             .on("mouseout", () => {
                 self.stopTooltip();
             })
+*/
             .on("mousemove", () => {
                 const _d3 = d3;
                 const mousePosition = d3.mouse(self.root.node());
