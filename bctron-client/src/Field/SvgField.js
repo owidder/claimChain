@@ -33,6 +33,9 @@ const idFromObjectWithXAndY = (obj) => {
     return "_" + obj.x + "_" + obj.y;
 }
 
+const TOOLTIP_CLASS = "rect-tooltip";
+const TOOLTIP_SELECTOR = "." + TOOLTIP_CLASS;
+
 export class SvgField {
     constructor(containerSelector, width, height, hoverCallback) {
         const self = this;
@@ -41,15 +44,15 @@ export class SvgField {
         this.height = height;
         this.hoverCallback = hoverCallback;
 
-        const _tileWidth = width / DIM_X;
-        const _tileHeight = height / DIM_Y;
+        const _tileWidth = width*2 / DIM_X;
+        const _tileHeight = height*2 / DIM_Y;
         this.tileSize = Math.min(_tileHeight, _tileWidth);
         this.fieldWidth = this.tileSize * DIM_X;
         this.fieldHeight = this.tileSize * DIM_Y;
 
         this.initSvg(containerSelector);
         this.initAxes();
-        this.initZoom();
+        this.initTooltip(containerSelector);
 
         this.flattenedMatrix = emptyFlattenedMatrix();
         this.history = {};
@@ -57,18 +60,43 @@ export class SvgField {
         this.isOver = false;
     }
 
+    initTooltip(selector) {
+
+        d3.select(selector)
+            .append("div")
+            .attr("class", TOOLTIP_CLASS);
+    }
+
+    startTooltip(text) {
+        const tooltip = $(TOOLTIP_SELECTOR);
+        tooltip.addClass("active");
+        tooltip.html(text);
+    }
+
+    stopTooltip() {
+        const tooltip = $(TOOLTIP_SELECTOR);
+        tooltip.removeClass("active");
+    }
+
+    positionTooltip(x, y) {
+        const tooltip = $(TOOLTIP_SELECTOR);
+        tooltip.css({
+            left: x,
+            top: y
+        });
+    }
+
     initSvg(selector) {
         const self = this;
 
         const zoomed = () => {
-            self.getRects().attr("transform", d3.event.transform);
-            self.gxaxis.call(self.xAxis.scale(d3.event.transform.rescaleX(self.xScale)));
-            self.gyaxis.call(self.yAxis.scale(d3.event.transform.rescaleY(self.yScale)));
+            const event = d3.event;
+            console.log(event);
+            this.gfield.attr("transform", d3.event.transform);
         }
 
         const zoom = d3.zoom()
-            .scaleExtent([1, 40])
-            .translateExtent([[-100, -100], [self.fieldWidth + 90, self.fieldHeight + 100]])
+            .scaleExtent([.2, 100])
             .on("zoom", zoomed);
 
         const svg = d3.select(selector)
@@ -142,20 +170,6 @@ export class SvgField {
 
         this.removeAxisLabels(".axis-x");
         this.removeAxisLabels(".axis-y");
-    }
-
-    initZoom() {
-        const self = this;
-        const zoomed = () => {
-            self.getRects().attr("transform", d3.event.transform);
-            self.gxaxis.call(self.xAxis.scale(d3.event.transform.rescaleX(self.xScale)));
-            self.gyaxis.call(self.yAxis.scale(d3.event.transform.rescaleY(self.yScale)));
-        }
-
-        const zoom = d3.zoom()
-            .scaleExtent([1, 40])
-            .translateExtent([[-100, -100], [self.fieldWidth + 90, self.fieldHeight + 100]])
-            .on("zoom", zoomed);
     }
 
     xcoord(xpos) {
@@ -246,6 +260,8 @@ export class SvgField {
     }
 
     drawMatrix() {
+        const self = this;
+
         const data = this.grects.selectAll("rect.position").data(this.flattenedMatrix, d => d.x + "-" + d.y);
 
         data.enter()
@@ -258,12 +274,22 @@ export class SvgField {
             .attr("fill", d => _.isEmpty(d.id) ? "white" : colorScale(d.id))
             .attr("class", d => "position " + idFromObjectWithXAndY(d))
             .on("mouseover", d => {
-                this.isOver = true;
-                if(_.isFunction(this.hoverCallback)) {
-                    const historyIncludingCurrentPosition = this.getHistoryIncludingCurrentPosition(d);
-                    this.hoverCallback(d.x, d.y, historyIncludingCurrentPosition);
+                self.isOver = true;
+                if(_.isFunction(self.hoverCallback)) {
+                    const historyIncludingCurrentPosition = self.getHistoryIncludingCurrentPosition(d);
+                    self.hoverCallback(d.x, d.y, historyIncludingCurrentPosition);
                 }
-            });
+
+                self.startTooltip(d.x + " / " + d.y + (_.isEmpty(d.id) ? "" : " (" + d.id + ")"));
+            })
+            .on("mouseout", () => {
+                self.stopTooltip();
+            })
+            .on("mousemove", () => {
+                const _d3 = d3;
+                const mousePosition = d3.mouse(self.root.node());
+                self.positionTooltip(mousePosition[0], mousePosition[1]);
+            })
 
         this.drawHeads();
     }

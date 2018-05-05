@@ -7,7 +7,7 @@ import {SvgField} from './SvgField';
 import {History} from './History';
 import {TotalRewards} from './TotalRewards';
 
-const width = $(window).width() * (10/12);
+const width = $(window).width() * (8/12);
 const height = $(window).height();
 
 export class Field extends Component {
@@ -47,14 +47,14 @@ export class Field extends Component {
     render() {
         return (
             <div className="row">
-                <div className="field col s8">
+                <div className="field col s9">
                 </div>
                 <div className="lists col s2">
                     <TotalRewards idToReward={this.state.totalRewards}/>
                     <br/>
                     <History x={Number(this.state.x)} y={Number(this.state.y)} positions={this.state.history}/>
                 </div>
-                <div className="col s2"></div>
+                <div className="col s1"></div>
             </div>
         )
     }
