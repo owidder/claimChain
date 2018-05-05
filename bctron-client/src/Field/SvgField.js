@@ -115,6 +115,8 @@ export class SvgField {
                         }, 5000);
                     }
                 }
+
+                self.stopTooltip();
             });
 
         svg.call(zoom);
@@ -257,11 +259,6 @@ export class SvgField {
 
                 self.startTooltip(d.x + " / " + d.y + (_.isEmpty(d.id) ? "" : " (" + d.id + ")"));
             })
-/*
-            .on("mouseout", () => {
-                self.stopTooltip();
-            })
-*/
             .on("mousemove", () => {
                 const _d3 = d3;
                 const mousePosition = d3.mouse(self.root.node());
