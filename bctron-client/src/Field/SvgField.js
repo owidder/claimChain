@@ -232,6 +232,17 @@ export class SvgField {
         this.heads = heads;
     }
 
+    isHead(x, y) {
+        let isHead = false;
+        _.values(this.heads).forEach((head) => {
+            if(head.x === x && head.y === y) {
+                isHead = true;
+            }
+        });
+
+        return isHead;
+    }
+
     getRects() {
         return this.gfield.selectAll("rect.position");
     }
@@ -257,7 +268,11 @@ export class SvgField {
                     self.hoverCallback(d.x, d.y, historyIncludingCurrentPosition);
                 }
 
-                self.startTooltip(d.x + " / " + d.y + (_.isEmpty(d.id) ? "" : " (" + d.id + ")"));
+                const isHead = self.isHead(d.x, d.y);
+                self.startTooltip(d.x + " / " + d.y
+                    + (_.isEmpty(d.id) ? "" : " (" + d.id + ")")
+                    + (self.isHead(d.x, d.y) ? " HEAD" : "")
+                );
             })
             .on("mousemove", () => {
                 const _d3 = d3;
