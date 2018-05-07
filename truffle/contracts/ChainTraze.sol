@@ -131,7 +131,7 @@ contract ChainTraze {
         int blockNumberOfBirth = blockNumbersOfBirth[id];
         if(currentBlockNumber - blockNumberOfBirth < MIN_BLOCK_COUNT_BEFORE_HEAD_COLLISION_ALLOWED) {
             emit HeadCollisionNotYetAllowed(id, x, y);
-            addReward(id, PENALTY, x, y, "NotAllowedHeadCollision);
+            addReward(id, PENALTY, x, y, "NotAllowedHeadCollision");
         }
 
         int otherTotalReward = totalRewards[otherId];
@@ -224,18 +224,19 @@ contract ChainTraze {
         int nexty = currenty + dy;
 
         if(isInsideField(id, nextx, nexty, currentx, currenty)) {
-            setHeadFlag(false, currentx, currenty);
-            setHeadFlag(true, nextx, nexty);
-            goIntoField(id, nextx, nexty);
             if(!isFree(nextx, nexty)) {
                 processCollision(id, nextx, nexty);
             }
+            setHeadFlag(false, currentx, currenty);
+            setHeadFlag(true, nextx, nexty);
+            goIntoField(id, nextx, nexty);
         }
     }
     
     function registerId(string id) internal {
         addressToId[msg.sender] = id;
         idToAddress[id] = msg.sender;
+        blockNumbersOfBirth[id] = int(block.number);
     }
 
     function north() public {

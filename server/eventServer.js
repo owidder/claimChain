@@ -12,6 +12,10 @@ const newEvent = (event) => {
     webSocketServer.sendObjectToAllSockets(event);
 }
 
+const newBlockNumber = (blockNumberObj) => {
+    webSocketServer.sendObjectToAllSockets(blockNumberObj);
+}
+
 const eventComparator = (e1, e2) => {
     if(e1.blockNumber !== e2.blockNumber) {
         return e1.blockNumber > e2.blockNumber ? 1 : -1;
@@ -51,6 +55,10 @@ new Promise((resolve) => {
             newEvent(event);
         });
     });
+
+    eventsUtil.subscribeNewBlockNumber().on('newBlockNumber', (blockNumberObj) => {
+        newBlockNumber(blockNumberObj);
+    })
 })
 
 webSocketServer.onConnectCallback = (socketId) => {

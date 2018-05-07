@@ -11,6 +11,8 @@ const listenersForPositions = [];
 const heads = {};
 const listenersForHeads = [];
 
+const listenersForNewBlockNumber = [];
+
 /**
  *
  * @param manyThings array, send piece by piece to the oneListener
@@ -48,6 +50,10 @@ export const addListenerForHeads = (listener) => {
     listenersForHeads.push(listener);
 }
 
+export const addListenerForNewBlockNumber = (listener) => {
+    listenersForNewBlockNumber.push(listener);
+}
+
 const newPositionEvent = (positionEvent) => {
     const uuid = guid();
     const hash = positionEvent.transactionHash;
@@ -68,18 +74,27 @@ const newHeadEvent = (headEvent) => {
     sendOneThingToManyListeners(heads, listenersForHeads);
 }
 
+const newBlockNumber = (blockNumberObj) => {
+    sendOneThingToManyListeners(blockNumberObj.blockNumber, listenersForNewBlockNumber);
+}
+
 const newEvent = (event) => {
-    allEvents.push(event);
-    sendOneThingToManyListeners(event, listenersForAllEvents);
+    if(event.type === "blockNumber") {
+        newBlockNumber(event)
+    }
+    else {
+        allEvents.push(event);
+        sendOneThingToManyListeners(event, listenersForAllEvents);
 
-    switch (event.event) {
-        case "Position":
-            newPositionEvent(event);
-            break;
+        switch (event.event) {
+            case "Position":
+                newPositionEvent(event);
+                break;
 
-        case "NewHead":
-            newHeadEvent(event);
-            break;
+            case "NewHead":
+                newHeadEvent(event);
+                break;
+        }
     }
 }
 

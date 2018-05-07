@@ -8,26 +8,25 @@ export class TotalRewards extends Component {
         super(props);
     }
 
-    renderRewardRow(rewardObject) {
+    renderRow(position) {
 
         return (
-            <tr key={rewardObject.id}>
-                <td>{rewardObject.id}</td>
-                <td>{rewardObject.reward}</td>
+            <tr key={position.id}>
+                <td>{position.id}</td>
+                <td>{position.totalReward}</td>
+                <td>{this.props.currentBlockNumber > 0 ? this.props.currentBlockNumber - position.blockNumber : '-'}</td>
+                <td>{this.props.currentBlockNumber > 0 ? this.props.currentBlockNumber - position.blockNumberOfBirth : '-'}</td>
             </tr>
         )
     }
 
-    sortedRewardArray() {
-        const rewardArray = _.keys(this.props.idToReward).map((id) => {
-            const reward = this.props.idToReward[id];
-            return {id, reward}
-        });
-        rewardArray.sort((a, b) => {
-            return Number(a.reward) < Number(b.reward);
+    sortedPositionArray() {
+        const positionArray = _.values(this.props.idToPosition);
+        positionArray.sort((a, b) => {
+            return Number(a.totalReward) < Number(b.totalReward);
         });
 
-        return rewardArray;
+        return positionArray;
     }
 
     render() {
@@ -38,10 +37,12 @@ export class TotalRewards extends Component {
                         <tr>
                             <th>id</th>
                             <th>total rewards</th>
+                            <th>next reward</th>
+                            <th>age</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {this.sortedRewardArray().map((rewardObject) => this.renderRewardRow(rewardObject))}
+                        {this.sortedPositionArray().map((position) => this.renderRow(position))}
                     </tbody>
                 </table>
             </div>
@@ -50,5 +51,6 @@ export class TotalRewards extends Component {
 }
 
 TotalRewards.propTypes = {
-    idToReward: PropTypes.object
+    idToPosition: PropTypes.object,
+    currentBlockNumber: PropTypes.number
 }

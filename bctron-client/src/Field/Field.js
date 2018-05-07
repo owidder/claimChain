@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import React, {Component} from 'react';
-import {addListenerForPositions, addListenerForHeads} from '../blockChain/blockChainEvents';
+import {addListenerForPositions, addListenerForHeads, addListenerForNewBlockNumber} from '../blockChain/blockChainEvents';
 import * as $ from "jquery";
 import 'tooltipster';
 import {SvgField} from './SvgField';
@@ -19,7 +19,8 @@ export class Field extends Component {
             x: undefined,
             y: undefined,
             history: [],
-            totalRewards: {}
+            lastPositions: {},
+            currentBlockNumber: undefined
         }
     }
 
@@ -27,21 +28,26 @@ export class Field extends Component {
         this.setState({x, y, history});
     }
 
-    updateTotalRewards(eventWithTotalReward) {
-        const id = eventWithTotalReward.id;
-        const totalRewards = {...this.state.totalRewards, [id]: eventWithTotalReward.totalReward};
-        this.setState({totalRewards});
+    updateLastPositions(position) {
+        const id = position.id;
+        const lastPositions = {...this.state.lastPositions, [id]: position};
+        this.setState({lastPositions});
     }
 
     newPosition(position) {
-        this.updateTotalRewards(position);
+        this.updateLastPositions(position);
         this.svgField.newPosition(position);
+    }
+
+    newBlockNumber(blockNumber) {
+        this.setState({currentBlockNumber: blockNumber});
     }
 
     componentDidMount() {
         this.svgField = new SvgField("div.field", width, height, (x, y, history) => this.newHistory(x, y, history));
         addListenerForPositions((newPosition) => this.newPosition(newPosition));
         addListenerForHeads((heads) => this.svgField.newHeads(heads));
+        addListenerForNewBlockNumber((blockNumber) => this.newBlockNumber(blockNumber));
     }
 
     render() {
@@ -50,7 +56,7 @@ export class Field extends Component {
                 <div className="field col s9">
                 </div>
                 <div className="lists col s2">
-                    <TotalRewards idToReward={this.state.totalRewards}/>
+                    <TotalRewards idToPosition={this.state.lastPositions} currentBlockNumber={this.state.currentBlockNumber}/>
                     <br/>
                     <History x={Number(this.state.x)} y={Number(this.state.y)} positions={this.state.history}/>
                 </div>
