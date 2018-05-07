@@ -10,9 +10,7 @@ import './blockChain/blockChainEvents';
 ReactDOM.render(
     <Router>
         <div>
-            <Link to="/Field?wsHost=1">Field</Link>&nbsp;|&nbsp;
-            <Link to="/List?wsHost=1">List</Link>
-            <Route path="/field" component={Field}/>
+            <Route exact path="/" component={Field}/>
             <Route path="/list" component={EventList}/>
         </div>
     </Router>

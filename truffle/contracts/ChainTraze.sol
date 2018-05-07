@@ -5,8 +5,9 @@ contract ChainTraze {
     int constant X_DIM = 100;
     int constant Y_DIM = 100;
     int constant FIELD_SIZE = X_DIM*Y_DIM;
-    int constant PENALTY = -2;
-    int constant BUMP = 10;
+    int constant PENALTY = -100;
+    int constant BUMP = 100;
+    int constant MIN_BLOCK_COUNT_BEFORE_HEAD_COLLISION_ALLOWED = 1000;
     
     mapping (address => int256) balances;
     
@@ -19,6 +20,7 @@ contract ChainTraze {
     mapping (string => int) ypositions;
     mapping (string => int) lastBlockNumbers;
     mapping (string => int) totalRewards;
+    mapping (string => int) blockNumbersOfBirth;
 
     // The following 4 functions are a workaround to get around an unsolvded Ganache Bug:
     // https://github.com/trufflesuite/ganache-cli/issues/458
@@ -40,7 +42,7 @@ contract ChainTraze {
         return ypositions[id] - 1;
     }
     
-    event Position(string id, int x, int y, int reward, int totalReward, string remarks);
+    event Position(string id, int x, int y, int reward, int totalReward, string remarks, int blockNumberOfBirth);
     event Error(string message);
     event IdAlreadyExistsError(string id);
     event IdDoesNotExistError(string id);
@@ -49,6 +51,7 @@ contract ChainTraze {
     event PositionIsOutsideOfFieldError(string id, int x, int y);
     event IdDoesNotYetExist(string id);
     event NewHead(string id, int x, int y);
+    event HeadCollisionNotYetAllowed(string id, int x, int y);
 
     event SetHeadFlag(bool flag, uint index);
     event GetHeadFlag(bool flag, uint index);
@@ -69,7 +72,8 @@ contract ChainTraze {
         else {
             totalRewards[id] += reward;
         }
-        emit Position(id, x, y, reward, totalRewards[id], remarks);
+        int blockNumberOfBirth = blockNumbersOfBirth[id];
+        emit Position(id, x, y, reward, totalRewards[id], remarks, blockNumberOfBirth);
     }
 
     function computeReward(string id) internal returns(int _reward){
@@ -123,9 +127,16 @@ contract ChainTraze {
     }
 
     function processHeadCollision(string id, string otherId, int x, int y) internal {
+        int currentBlockNumber = int(block.number);
+        int blockNumberOfBirth = blockNumbersOfBirth[id];
+        if(currentBlockNumber - blockNumberOfBirth < MIN_BLOCK_COUNT_BEFORE_HEAD_COLLISION_ALLOWED) {
+            emit HeadCollisionNotYetAllowed(id, x, y);
+            addReward(id, PENALTY, x, y, "NotAllowedHeadCollision);
+        }
+
         int otherTotalReward = totalRewards[otherId];
         if(otherTotalReward >= 0) {
-            sendReward(otherId, id, otherTotalReward + 100, x, y, "head");
+            sendReward(otherId, id, otherTotalReward + BUMP, x, y, "head");
         }
         else {
             sendReward(otherId, id, -otherTotalReward, x, y, "head");
@@ -135,7 +146,7 @@ contract ChainTraze {
     function processTailCollision(string id, string otherId, int x, int y) internal {
         int totalReward = totalRewards[id];
         if(totalReward >= 0) {
-            sendReward(id, otherId, totalReward + 100, x, y, "tail");
+            sendReward(id, otherId, totalReward + BUMP, x, y, "tail");
         }
         else {
             sendReward(id, otherId, -totalReward, x, y, "tail");
@@ -145,11 +156,17 @@ contract ChainTraze {
     function processSelfCollision(string id, int x, int y) internal {
         int totalReward = totalRewards[id];
         if(totalReward >= 0) {
-            addReward(id, -totalReward - 100, x, y, "self");
+            addReward(id, -totalReward - BUMP, x, y, "self");
         }
         else {
             addReward(id, -totalReward, x, y, "self");
         }
+    }
+
+    function age(string id) internal view returns(int) {
+        int currentBlockNumber = int(block.number);
+        int blockNumberOfBirth = blockNumbersOfBirth[id];
+        return currentBlockNumber - blockNumberOfBirth;
     }
 
     function processCollision(string id, int x, int y) internal {
@@ -162,7 +179,13 @@ contract ChainTraze {
             bool isHead = headFlags[index];
             emit GetHeadFlag(isHead, index);
             if(isHead) {
-                processHeadCollision(id, otherId, x, y);
+                if(age(id) < MIN_BLOCK_COUNT_BEFORE_HEAD_COLLISION_ALLOWED) {
+                    emit HeadCollisionNotYetAllowed(id, x, y);
+                    processTailCollision(id, otherId, x, y);
+                }
+                else {
+                    processHeadCollision(id, otherId, x, y);
+                }
             }
             else {
                 processTailCollision(id, otherId, x, y);
@@ -201,12 +224,12 @@ contract ChainTraze {
         int nexty = currenty + dy;
 
         if(isInsideField(id, nextx, nexty, currentx, currenty)) {
-            if(!isFree(nextx, nexty)) {
-                processCollision(id, nextx, nexty);
-            }
             setHeadFlag(false, currentx, currenty);
             setHeadFlag(true, nextx, nexty);
             goIntoField(id, nextx, nexty);
+            if(!isFree(nextx, nexty)) {
+                processCollision(id, nextx, nexty);
+            }
         }
     }
     
