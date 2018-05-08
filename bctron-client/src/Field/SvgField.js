@@ -230,6 +230,7 @@ export class SvgField {
 
     newHeads(heads) {
         this.heads = heads;
+        this.drawHeads();
     }
 
     isHead(x, y) {
