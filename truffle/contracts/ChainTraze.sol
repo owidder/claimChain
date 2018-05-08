@@ -74,14 +74,15 @@ contract ChainTraze {
         }
         int blockNumberOfBirth = blockNumbersOfBirth[id];
         emit Position(id, x, y, reward, totalRewards[id], remarks, blockNumberOfBirth);
+        int currentBlockNumber = int(block.number);
+        lastBlockNumbers[id] = currentBlockNumber;
     }
 
-    function computeReward(string id) internal returns(int _reward){
+    function computeReward(string id) internal view returns(int _reward){
         int lastBlockNumber = lastBlockNumbers[id];
         int currentBlockNumber = int(block.number);
         int diff = currentBlockNumber - lastBlockNumber;
         int reward = lastBlockNumber > 0 ? (diff > 1 ? diff : 0) : 0;
-        lastBlockNumbers[id] = currentBlockNumber;
         return reward;
     }
     
