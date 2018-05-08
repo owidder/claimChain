@@ -43,7 +43,9 @@ export class TotalRewards extends Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {this.sortedPositionArray().map((position) => this.renderRow(position))}
+                        {this.sortedPositionArray()
+                            .filter(position => !_.isEmpty(position.id))
+                            .map((position) => this.renderRow(position))}
                     </tbody>
                 </table>
             </div>
