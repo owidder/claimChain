@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+import {MIN_REWARD} from '../blockChain/info';
 
 export class TotalRewards extends Component {
 
@@ -9,12 +10,12 @@ export class TotalRewards extends Component {
     }
 
     renderRow(position) {
-
+        const nextReward = this.props.currentBlockNumber - position.blockNumber;
         return (
             <tr key={position.id}>
                 <td>{position.id}</td>
                 <td>{position.totalReward}</td>
-                <td>{this.props.currentBlockNumber > 0 ? this.props.currentBlockNumber - position.blockNumber : '-'}</td>
+                <td>{this.props.currentBlockNumber > 0 ? (nextReward >= MIN_REWARD ? nextReward : 0)  : '-'}</td>
                 <td>{this.props.currentBlockNumber > 0 ? this.props.currentBlockNumber - position.blockNumberOfBirth : '-'}</td>
             </tr>
         )

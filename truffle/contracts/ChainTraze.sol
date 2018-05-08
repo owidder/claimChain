@@ -8,6 +8,7 @@ contract ChainTraze {
     int constant PENALTY = -100;
     int constant BUMP = 100;
     int constant MIN_BLOCK_COUNT_BEFORE_HEAD_COLLISION_ALLOWED = 1000;
+    int constant MIN_REWARD = 5;
     
     mapping (address => int256) balances;
     
@@ -82,7 +83,7 @@ contract ChainTraze {
         int lastBlockNumber = lastBlockNumbers[id];
         int currentBlockNumber = int(block.number);
         int diff = currentBlockNumber - lastBlockNumber;
-        int reward = lastBlockNumber > 0 ? (diff > 1 ? diff : 0) : 0;
+        int reward = lastBlockNumber > 0 ? (diff >= MIN_REWARD ? diff : 0) : 0;
         return reward;
     }
     
