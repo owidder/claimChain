@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const truffleContract = require('truffle-contract');
 const web3Util = require('../web3/web3Util');
-const chainTrazeArtifacts = require('../../truffle/build/contracts/ChainTraze.json');
+const chainTrazeArtifacts = require('../../truffle/build-eth01/contracts/ChainTraze.json');
 const ChainTraze = truffleContract(chainTrazeArtifacts);
 
 const currentProvider = web3Util.getWeb3().currentProvider;
