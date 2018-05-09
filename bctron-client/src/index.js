@@ -6,13 +6,10 @@ import './index.css';
 import {EventList} from './EventList/EventList';
 import {Field} from './Field/Field';
 import './blockChain/blockChainEvents';
+import {paramValue} from './util/query';
 
-ReactDOM.render(
-    <Router>
-        <div>
-            <Route exact path="/" component={Field}/>
-            <Route path="/list" component={EventList}/>
-        </div>
-    </Router>
-    , document.getElementById('root'));
+const mode = paramValue("mode");
+const element = mode == "list" ? <EventList/> : <Field/>;
+
+ReactDOM.render(<div>{element}</div>, document.getElementById('root'));
 

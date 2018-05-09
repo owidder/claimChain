@@ -245,16 +245,16 @@ module.exports = {
       inject: true,
       template: paths.appHtml,
       minify: {
-        removeComments: true,
-        collapseWhitespace: true,
-        removeRedundantAttributes: true,
-        useShortDoctype: true,
-        removeEmptyAttributes: true,
-        removeStyleLinkTypeAttributes: true,
-        keepClosingSlash: true,
-        minifyJS: true,
-        minifyCSS: true,
-        minifyURLs: true,
+        removeComments: false,
+        collapseWhitespace: false,
+        removeRedundantAttributes: false,
+        useShortDoctype: false,
+        removeEmptyAttributes: false,
+        removeStyleLinkTypeAttributes: false,
+        keepClosingSlash: false,
+        minifyJS: false,
+        minifyCSS: false,
+        minifyURLs: false,
       },
     }),
     // Makes some environment variables available to the JS code, for example:
@@ -314,7 +314,7 @@ module.exports = {
         }
         console.log(message);
       },
-      minify: true,
+      minify: false,
       // For unknown URLs, fallback to the index page
       navigateFallback: publicUrl + '/index.html',
       // Ignores URLs starting from /__ (useful for Firebase):

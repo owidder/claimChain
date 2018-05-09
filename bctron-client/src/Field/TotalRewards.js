@@ -10,12 +10,13 @@ export class TotalRewards extends Component {
     }
 
     renderRow(position) {
-        const nextReward = this.props.currentBlockNumber - position.blockNumber;
+        const ageOfLastMove = this.props.currentBlockNumber - position.blockNumber;
         return (
             <tr key={position.id}>
                 <td>{position.id}</td>
                 <td>{position.totalReward}</td>
-                <td>{this.props.currentBlockNumber > 0 ? (nextReward >= MIN_REWARD ? nextReward : 0)  : '-'}</td>
+                <td>{this.props.currentBlockNumber > 0 ? ageOfLastMove  : '-'}</td>
+                <td>{this.props.currentBlockNumber > 0 ? (ageOfLastMove >= MIN_REWARD ? ageOfLastMove : 0)  : '-'}</td>
                 <td>{this.props.currentBlockNumber > 0 ? this.props.currentBlockNumber - position.blockNumberOfBirth : '-'}</td>
             </tr>
         )
@@ -38,6 +39,7 @@ export class TotalRewards extends Component {
                         <tr>
                             <th>id</th>
                             <th>total rewards</th>
+                            <th>last move</th>
                             <th>next reward</th>
                             <th>age</th>
                         </tr>
