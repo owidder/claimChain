@@ -62,7 +62,7 @@ contract SlowSnakes {
         return field[index];
     }
 
-    function checkIdIsValid(string id) {
+    function checkIdIsValid(string id) internal returns(bool) {
         uint len = bytes(id).length;
         if(len < 3) {
             emit IdTooShortError(id);
