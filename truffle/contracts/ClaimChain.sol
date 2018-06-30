@@ -8,7 +8,7 @@ contract ClaimChain {
         uint blockTimestamp;
     }
     
-    event NewClaim(string, Claim);
+    event NewClaim(string, address, uint, uint);
     event NewName(address, string);
 
     mapping (string => Claim) hashToClaim;
@@ -17,7 +17,7 @@ contract ClaimChain {
     function registerHash(string hash) public {
         Claim memory claim = Claim(msg.sender, block.number, block.timestamp);
         hashToClaim[hash] = claim;
-        emit NewClaim(hash, claim);
+        emit NewClaim(hash, msg.sender, block.number, block.timestamp);
     }
 
     function registerName(string name) public {
