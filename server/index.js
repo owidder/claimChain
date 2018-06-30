@@ -6,14 +6,14 @@ accountsUtil.getDefaultAccount().then((account) => {
     console.log(account);
 });
 
-eventsUtil.subscribe(contracts.SlowSnakes, "Position").on('event', (data) => {
+eventsUtil.subscribe(contracts.ClaimChain, "Position").on('event', (data) => {
     console.log(data);
 });
 
-eventsUtil.subscribe(contracts.SlowSnakes, "Error").on('event', (data) => {
+eventsUtil.subscribe(contracts.ClaimChain, "Error").on('event', (data) => {
     console.log(data);
 });
 
-eventsUtil.subscribe(contracts.SlowSnakes, "Reward").on('event', (data) => {
+eventsUtil.subscribe(contracts.ClaimChain, "Reward").on('event', (data) => {
     console.log(data);
 });
