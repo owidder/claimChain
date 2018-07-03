@@ -6,8 +6,11 @@ import {setAddress} from './info';
 const allEvents = [];
 const listenersForAllEvents = [];
 
-const positionsArray = [];
-const listenersForPositions = [];
+const claimEventsArray = [];
+const listenersForClaimEvents = [];
+
+const nameEventsArray = [];
+const listenersForNameEvents = [];
 
 const heads = {};
 const listenersForHeads = [];
@@ -36,70 +39,28 @@ const sendOneThingToManyListeners = (oneThing, manyListeners) => {
     })
 }
 
-export const addListenerForAllEvents = (listener) => {
-    sendManyThingsToOneListener(allEvents, listener);
-    listenersForAllEvents.push(listener);
+export const addListenerForClaimEvents = (listener) => {
+    sendManyThingsToOneListener(claimEventsArray, listener);
+    listenersForClaimEvents.push(listener);
 }
 
-export const addListenerForPositions = (listener) => {
-    sendManyThingsToOneListener(positionsArray, listener);
-    listenersForPositions.push(listener);
-}
-
-export const addListenerForHeads = (listener) => {
-    listener(heads);
-    listenersForHeads.push(listener);
-}
-
-export const addListenerForNewBlockNumber = (listener) => {
-    listenersForNewBlockNumber.push(listener);
-}
-
-const newPositionEvent = (positionEvent) => {
-    const uuid = guid();
-    const hash = positionEvent.transactionHash;
-    const blockNumber = positionEvent.blockNumber;
-    const transactionIndex = positionEvent.transactionIndex;
-    const logIndex = positionEvent.logIndex;
-    const position = {...positionEvent.returnValues, hash, blockNumber, uuid, transactionIndex, logIndex};
-    const id = position.id;
-
-    positionsArray.push(position);
-    sendOneThingToManyListeners(position, listenersForPositions);
-}
-
-const newHeadEvent = (headEvent) => {
-    const head = headEvent.returnValues;
-    const id = head.id;
-    heads[id] = head;
-    sendOneThingToManyListeners(heads, listenersForHeads);
-}
-
-const newBlockNumber = (blockNumberObj) => {
-    sendOneThingToManyListeners(blockNumberObj.blockNumber, listenersForNewBlockNumber);
+export const addListenerForNameEvents = (listener) => {
+    sendManyThingsToOneListener(nameEventsArray, listener);
+    listenersForNameEvents.push(listener);
 }
 
 const newEvent = (event) => {
-    if(!_.isUndefined(event.address)) {
-        setAddress(event.address);
-    }
-    if(event.type === "blockNumber") {
-        newBlockNumber(event)
-    }
-    else {
-        allEvents.push(event);
-        sendOneThingToManyListeners(event, listenersForAllEvents);
+    switch (event.event) {
+        case "NewClaim":
+            claimEventsArray.push(event);
+            break;
 
-        switch (event.event) {
-            case "Position":
-                newPositionEvent(event);
-                break;
-
-            case "NewHead":
-                newHeadEvent(event);
-                break;
-        }
+        case "NewName":
+            nameEventsArray.push(event);
+            break;
     }
+
+    sendOneThingToManyListeners(event);
 }
 
 connect(1337, (event) => {

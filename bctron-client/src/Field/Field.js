@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {addListenerForPositions, addListenerForHeads, addListenerForNewBlockNumber} from '../blockChain/blockChainEvents';
+import {addListenerForClaimEvents, addListenerForHeads, addListenerForNewBlockNumber} from '../blockChain/blockChainEvents';
 import * as $ from "jquery";
 import 'tooltipster';
 import {SvgField} from './SvgField';
@@ -50,7 +50,7 @@ export class Field extends Component {
     componentDidMount() {
         this.svgField = new SvgField("div.field", width, height, (x, y, history) => this.newHistory(x, y, history));
         this.svgField.drawMatrix();
-        addListenerForPositions((newPosition) => this.newPosition(newPosition));
+        addListenerForClaimEvents((newPosition) => this.newPosition(newPosition));
         addListenerForHeads((heads) => this.svgField.newHeads(heads));
         addListenerForNewBlockNumber((blockNumber) => this.newBlockNumber(blockNumber));
     }
