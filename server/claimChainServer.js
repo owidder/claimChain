@@ -5,7 +5,7 @@ const eventServer = require('./eventServer');
 
 function startServer() {
     const httpPort = process.argv[3] || 1338;
-    const folder = process.argv[2] || '../bctron-client/build';
+    const folder = process.argv[2] || '../claimchain-client/build';
 
     const app = express();
     const absFolder = __dirname + '/' + folder;
