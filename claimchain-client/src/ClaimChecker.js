@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import {Form, Input, Button, Row, Col} from 'antd';
 
+import {hashSHA512FromUtf8} from './hash';
+
 import 'antd/dist/antd.css';
 
 const FormItem = Form.Item;
@@ -10,9 +12,10 @@ class ClaimCheckerBase extends Component {
 
     check(e){
         e.preventDefault();
-        this.props.form.validateFields((err, values) => {
+        this.props.form.validateFields(async (err, values) => {
             if(!err) {
-                console.log(values);
+                const hashValue = await hashSHA512FromUtf8(values.textToClaim);
+                console.log(hashValue);
             }
             else {
                 console.error(err);
