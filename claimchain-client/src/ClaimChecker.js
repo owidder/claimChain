@@ -2,25 +2,50 @@ import React, {Component} from 'react';
 import {Form, Input, Button, Row, Col} from 'antd';
 
 import {hashSHA512FromUtf8} from './hash';
+import * as claims from './claims';
+import {ClaimCard} from './ClaimCard';
 
 import 'antd/dist/antd.css';
 
 const FormItem = Form.Item;
 const {TextArea} = Input;
 
+const EMPTY = {
+    hash: undefined,
+    account: undefined,
+    blockNo: undefined,
+    blockTime: undefined,
+}
+
 class ClaimCheckerBase extends Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = EMPTY
+    }
 
     check(e){
         e.preventDefault();
         this.props.form.validateFields(async (err, values) => {
             if(!err) {
-                const hashValue = await hashSHA512FromUtf8(values.textToClaim);
-                console.log(hashValue);
+                const hash = await hashSHA512FromUtf8(values.textToClaim);
+                const claim = claims.check(hash);
+                if(claim) {
+                    this.setState({...claim});
+                }
+                else {
+                    this.setState({...EMPTY, hash});
+                }
             }
             else {
                 console.error(err);
             }
         })
+    }
+
+    componentDidMount() {
+        claims.init();
     }
 
     render() {
@@ -48,6 +73,13 @@ class ClaimCheckerBase extends Component {
                     <Col span={1}/>
                     <Col span={22}>
                         <Button type="primary" onClick={(e) => this.check(e)}>Check</Button>
+                    </Col>
+                    <Col span={1}/>
+                </Row>
+                <Row>
+                    <Col span={1}/>
+                    <Col span={22}>
+                        <ClaimCard {...this.state}/>
                     </Col>
                     <Col span={1}/>
                 </Row>

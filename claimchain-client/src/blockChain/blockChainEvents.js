@@ -53,14 +53,14 @@ const newEvent = (event) => {
     switch (event.event) {
         case "NewClaim":
             claimEventsArray.push(event);
+            sendOneThingToManyListeners(event, listenersForClaimEvents);
             break;
 
         case "NewName":
             nameEventsArray.push(event);
+            sendOneThingToManyListeners(event, listenersForNameEvents);
             break;
     }
-
-    sendOneThingToManyListeners(event);
 }
 
 connect(1337, (event) => {
