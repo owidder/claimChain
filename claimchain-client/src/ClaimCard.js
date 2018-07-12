@@ -11,7 +11,7 @@ export class ClaimCard extends Component {
                 <p>hash: {this.props.hash}</p>
                 <p>block time: {this.props.blockTime}</p>
                 <p>block number: {this.props.blockNo}</p>
-                <p>account: {this.props.accounts}</p>
+                <p>account: {this.props.account}</p>
             </Card>
         )
     }
@@ -20,6 +20,6 @@ export class ClaimCard extends Component {
 ClaimCard.propTypes = {
     hash: PropTypes.string,
     blockTime: PropTypes.string,
-    blockNo: PropTypes.number,
+    blockNo: PropTypes.string,
     account: PropTypes.string,
 }

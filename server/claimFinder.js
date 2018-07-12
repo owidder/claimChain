@@ -1,0 +1,37 @@
+const claims = {};
+
+const names = {};
+
+const registerClaim = (event) => {
+
+    const hash = event.returnValues[0];
+
+    const claim = {
+        account: event.returnValues[1],
+        blockNo: event.returnValues[2],
+        blockTime: event.returnValues[3],
+        hash
+    }
+
+    claims[hash] = claim;
+}
+
+const getClaim = (hash) => {
+    return claims[hash];
+}
+
+const handleEvent = (event) => {
+    switch (event.event) {
+        case "NewClaim":
+            registerClaim(event);
+            break;
+
+        default:
+            console.log("unknown event: " + event.event);
+    }
+}
+
+module.exports = {
+    handleEvent,
+    getClaim
+}

@@ -30,8 +30,8 @@ class ClaimCheckerBase extends Component {
         this.props.form.validateFields(async (err, values) => {
             if(!err) {
                 const hash = await hashSHA512FromUtf8(values.textToClaim);
-                const claim = claims.check(hash);
-                if(claim) {
+                const claim = await claims.check(hash);
+                if(claim.account) {
                     this.setState({...claim});
                 }
                 else {

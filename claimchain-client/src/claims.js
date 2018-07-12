@@ -19,12 +19,9 @@ export const init = () => {
     });
 }
 
-export const check = (hash) => {
-    const match = claimEvents.filter((event) => {
-        return event.hash == hash;
-    })
+export const check = async (hash) => {
+    const response = await fetch("/api/check/" + hash);
+    const claim = await response.json();
 
-    if(!_.isEmpty(match)) {
-        return match[0];
-    }
+    return claim;
 }

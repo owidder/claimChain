@@ -1,9 +1,11 @@
+const _ = require('lodash');
+
 const WebSocketServer = require('./WebSocketServer');
 const eventsUtil = require('./web3/eventsUtil');
 const contracts = require('./contracts/contracts');
 const eventUtil = require('./util/eventUtil');
 
-const start = () => {
+const start = (onEvent) => {
     const webSocketServer = new WebSocketServer();
 
     const eventsToListenTo = contracts.getEventNames(contracts.ClaimChain);
@@ -11,6 +13,9 @@ const start = () => {
     const newEvent = (event) => {
         eventUtil.saveEvent(event);
         webSocketServer.sendObjectToAllSockets(event);
+        if(_.isFunction(onEvent)) {
+            onEvent(event);
+        }
     }
 
     const newBlockNumber = (blockNumberObj) => {
