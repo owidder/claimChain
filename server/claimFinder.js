@@ -7,6 +7,7 @@ const registerClaim = (event) => {
     const hash = event.returnValues[0];
 
     const claim = {
+        contractAddress: event.address,
         account: event.returnValues[1],
         blockNo: event.returnValues[2],
         blockTime: event.returnValues[3],

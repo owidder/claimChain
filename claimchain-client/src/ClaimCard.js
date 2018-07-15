@@ -12,6 +12,7 @@ export class ClaimCard extends Component {
                 <p>block time: {this.props.blockTime}</p>
                 <p>block number: {this.props.blockNo}</p>
                 <p>account: {this.props.account}</p>
+                <p>conract address: {this.props.contractAddress}</p>
             </Card>
         )
     }
@@ -22,4 +23,5 @@ ClaimCard.propTypes = {
     blockTime: PropTypes.string,
     blockNo: PropTypes.string,
     account: PropTypes.string,
+    contractAddress: PropTypes.string,
 }

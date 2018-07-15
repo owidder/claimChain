@@ -25,3 +25,7 @@ export const check = async (hash) => {
 
     return claim;
 }
+
+export const claim = (hash) => {
+
+}
