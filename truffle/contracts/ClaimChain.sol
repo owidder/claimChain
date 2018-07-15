@@ -11,12 +11,12 @@ contract ClaimChain {
     event NewClaim(string, address, uint, uint);
     event NewName(address, string);
 
-    mapping (string => Claim) hashToClaim;
+    mapping (string => Claim[]) hashToClaim;
     mapping (address => string) addressToName;
 
     function registerHash(string hash) public {
         Claim memory claim = Claim(msg.sender, block.number, block.timestamp);
-        hashToClaim[hash] = claim;
+        hashToClaim[hash].push(claim);
         emit NewClaim(hash, msg.sender, block.number, block.timestamp);
     }
 
@@ -29,18 +29,22 @@ contract ClaimChain {
         return addressToName[addr];
     }
 
-    function claimerAddressFromHash(string hash) public view returns(address) {
-        Claim storage claim =  hashToClaim[hash];
+    function numberOfClaimsForHash(string hash) public view returns(uint) {
+        return hashToClaim[hash].length;
+    }
+
+    function claimerAddressFromHashAndIndex(string hash, uint index) public view returns(address) {
+        Claim storage claim =  hashToClaim[hash][index];
         return claim.claimer;
     }
 
-    function blockNumberFromHash(string hash) public view returns(uint) {
-        Claim storage claim =  hashToClaim[hash];
+    function blockNumberFromHashAndIndex(string hash, uint index) public view returns(uint) {
+        Claim storage claim =  hashToClaim[hash][index];
         return claim.blockNumber;
     }
 
-    function blockTimestampFromHash(string hash) public view returns(uint) {
-        Claim storage claim =  hashToClaim[hash];
+    function blockTimestampFromHashAndIndex(string hash, uint index) public view returns(uint) {
+        Claim storage claim =  hashToClaim[hash][index];
         return claim.blockTimestamp;
     }
 }
