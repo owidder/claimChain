@@ -21,9 +21,9 @@ export const init = () => {
 
 export const check = async (hash) => {
     const response = await fetch("/api/check/" + hash);
-    const claim = await response.json();
+    const claims = await response.json();
 
-    return claim;
+    return claims;
 }
 
 export const claim = (hash) => {

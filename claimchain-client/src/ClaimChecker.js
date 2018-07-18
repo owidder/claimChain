@@ -17,25 +17,41 @@ const EMPTY = {
     blockTime: undefined,
 }
 
+const renderClaimCardRows = (claims) => {
+    return claims.map(claim =>
+        <Row>
+            <Col span={1}/>
+            <Col span={22}>
+                <ClaimCard {...claim}/>
+            </Col>
+            <Col span={1}/>
+        </Row>
+    )
+}
+
 class ClaimCheckerBase extends Component {
 
     constructor(props) {
         super(props);
 
-        this.state = EMPTY
+        this.state = {claims: []};
     }
 
     check(e){
         e.preventDefault();
         this.props.form.validateFields(async (err, values) => {
             if(!err) {
-                const hash = await hashSHA512FromUtf8(values.textToClaim);
-                const claim = await claims.check(hash);
-                if(claim.account) {
-                    this.setState({...claim});
-                }
-                else {
-                    this.setState({...EMPTY, hash});
+                try {
+                    const hash = await hashSHA512FromUtf8(values.textToClaim);
+                    const claims = await claims.check(hash);
+                    if (claims.account) {
+                        this.setState({claims});
+                    }
+                    else {
+                        this.setState([{...EMPTY, hash}]);
+                    }
+                } catch (e) {
+                    console.log(e);
                 }
             }
             else {
@@ -76,13 +92,7 @@ class ClaimCheckerBase extends Component {
                     </Col>
                     <Col span={1}/>
                 </Row>
-                <Row>
-                    <Col span={1}/>
-                    <Col span={22}>
-                        <ClaimCard {...this.state}/>
-                    </Col>
-                    <Col span={1}/>
-                </Row>
+                {renderClaimCardRows(this.state.claims)}
             </Form>
         )
     }

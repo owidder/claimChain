@@ -17,8 +17,8 @@ const createRestApi = (app) => {
 
     api.get("/check/:hash", (req, res) => {
         const hash = req.params.hash;
-        const claim = claimFinder.getClaim(hash) || EMPTY;
-        res.json(claim);
+        const claims = claimFinder.getClaims(hash) || EMPTY;
+        res.json(claims);
     });
 
     app.use("/api", api);

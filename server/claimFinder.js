@@ -14,10 +14,15 @@ const registerClaim = (event) => {
         hash
     }
 
-    claims[hash] = claim;
+    if(!claim[hash]) {
+        claims[hash] = [claim];
+    }
+    else {
+        claims[hash].push(claim);
+    }
 }
 
-const getClaim = (hash) => {
+const getClaims = (hash) => {
     return claims[hash];
 }
 
@@ -34,5 +39,5 @@ const handleEvent = (event) => {
 
 module.exports = {
     handleEvent,
-    getClaim
+    getClaims
 }

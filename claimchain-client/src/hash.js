@@ -23,6 +23,8 @@ export const hashSHA512FromUtf8 = (utf8Text) => {
         const buffer = new TextEncoder("utf-8").encode(utf8Text);
         crypto.subtle.digest("SHA-512", buffer).then((hash) => {
             resolve(hex(hash));
+        }, (e) => {
+            console.log(e);
         })
     })
 }
