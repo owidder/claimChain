@@ -12,7 +12,7 @@ export class ClaimCard extends Component {
                 <p>block time: {this.props.blockTime}</p>
                 <p>block number: {this.props.blockNo}</p>
                 <p>account: {this.props.account}</p>
-                <p>conract address: {this.props.contractAddress}</p>
+                <p>contract address: {this.props.contractAddress}</p>
             </Card>
         )
     }

@@ -3,12 +3,16 @@ const http = require('http');
 
 const eventServer = require('./eventServer');
 const claimFinder = require('./claimFinder');
+const contracts = require('../contracts/contracts');
+
+const contractAddress = contracts.getDefaultAddress(contracts.ClaimChain);
 
 const EMPTY = {
     hash: undefined,
     account: undefined,
     blockNo: undefined,
     blockTime: undefined,
+    contractAddress
 }
 
 const createRestApi = (app) => {
@@ -16,8 +20,9 @@ const createRestApi = (app) => {
     const api = express.Router();
 
     api.get("/check/:hash", (req, res) => {
+        const _c = contractAddress;
         const hash = req.params.hash;
-        const claims = claimFinder.getClaims(hash) || EMPTY;
+        const claims = claimFinder.getClaims(hash) || [{hash, contractAddress}];
         res.json(claims);
     });
 

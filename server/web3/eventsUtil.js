@@ -2,7 +2,7 @@ const ethers = require('ethers');
 const EventEmitter = require('events');
 const ethersUtil = require('./ethersUtil');
 const web3Util = require('./web3Util');
-const contracts = require('../contracts/contracts');
+const contracts = require('../../contracts/contracts');
 
 class ContractEventEmitter extends EventEmitter {}
 class ChainEventEmitter extends EventEmitter {}

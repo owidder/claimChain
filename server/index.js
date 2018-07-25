@@ -1,6 +1,6 @@
 const accountsUtil = require('./web3/accountsUtil');
 const eventsUtil = require('./web3/eventsUtil');
-const contracts = require('./contracts/contracts');
+const contracts = require('../contracts/contracts');
 
 accountsUtil.getDefaultAccount().then((account) => {
     console.log(account);

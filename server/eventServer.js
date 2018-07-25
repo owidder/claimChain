@@ -2,7 +2,7 @@ const _ = require('lodash');
 
 const WebSocketServer = require('./WebSocketServer');
 const eventsUtil = require('./web3/eventsUtil');
-const contracts = require('./contracts/contracts');
+const contracts = require('../contracts/contracts');
 const eventUtil = require('./util/eventUtil');
 
 const start = (onEvent) => {

@@ -14,7 +14,7 @@ const registerClaim = (event) => {
         hash
     }
 
-    if(!claim[hash]) {
+    if(!claims[hash]) {
         claims[hash] = [claim];
     }
     else {
