@@ -1,3 +1,6 @@
+var HDWalletProvider = require("truffle-hdwallet-provider");
+var mnemonic = "season divert corn exchange harbor book boat allow vivid error apple process";
+
 module.exports = {
     // See <http://truffleframework.com/docs/advanced/configuration>
     // for more about customizing your Truffle configuration!
@@ -28,6 +31,12 @@ module.exports = {
             port: 6545,
             network_id: 4,
             from: "0x8202da978bf626e1abdb4cd90d6528551537c760"
+        },
+        infura : {
+            provider: function() {
+                return new HDWalletProvider(mnemonic, "https://rinkeby.infura.io/v3/6b901e50131a4b69a46c6aad0294cb1d")
+            },
+            network_id: 4,
         },
         eth01_2 : {
             host: "127.0.0.1",
