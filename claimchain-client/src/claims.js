@@ -25,11 +25,10 @@ export const init = () => {
 }
 
 export const check = async (hash) => {
-    const claimList = await check2(hash);
+    const response = await fetch("/api/check/" + hash);
+    const claims = await response.json();
 
-    debugger
-
-    return claimList;
+    return claims;
 }
 
 const _readClaimsRecursive = async (hash, claimArray, numberOfClaims, counter, resolve) => {

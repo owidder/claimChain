@@ -43,7 +43,7 @@ class ClaimCheckerBase extends Component {
             if(!err) {
                 try {
                     const hash = await hashSHA512FromUtf8(values.textToClaim);
-                    const claimList = await claims.check(hash);
+                    const claimList = await claims.check2(hash);
                     if (claimList && claimList.length > 0) {
                         this.setState({claimList});
                     }
