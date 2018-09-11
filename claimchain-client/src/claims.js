@@ -1,4 +1,9 @@
 import * as _ from 'lodash';
+import {numberOfClaimsForHash,
+    claimerAddressFromHashAndIndex,
+    blockNumberFromHashAndIndex,
+    contractAddress,
+    blockTimestampFromHashAndIndex} from './blockChain/callContractTransaction';
 
 import {addListenerForClaimEvents} from './blockChain/blockChainEvents';
 
@@ -20,10 +25,30 @@ export const init = () => {
 }
 
 export const check = async (hash) => {
-    const response = await fetch("/api/check/" + hash);
-    const claims = await response.json();
+    const claimList = await check2(hash);
 
-    return claims;
+    debugger
+
+    return claimList;
+}
+
+const _readClaimsRecursive = async (hash, claimArray, numberOfClaims, counter, resolve) => {
+    if(counter >= numberOfClaims) {
+        resolve(claimArray);
+    }
+    const account = await claimerAddressFromHashAndIndex(hash, counter);
+    const blockNo = await blockNumberFromHashAndIndex(hash, counter);
+    const blockTime = await blockTimestampFromHashAndIndex(hash, counter);
+    claimArray.push({account, blockNo, blockTime, hash, contractAddress});
+
+    _readClaimsRecursive(hash, claimArray, numberOfClaims, counter+1, resolve);
+}
+
+export const check2 = async (hash) => {
+    const numberOfClaims = await numberOfClaimsForHash(hash);
+    return new Promise(resolve => {
+        _readClaimsRecursive(hash, [], numberOfClaims, 0, resolve);
+    })
 }
 
 export const claim = (hash) => {
