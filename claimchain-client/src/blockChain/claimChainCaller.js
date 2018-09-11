@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 const Web3 = require('web3');
-const ClaimChain = require('../_ClaimChain.json');
+const ClaimChain = require('./_ClaimChain.json');
 
 let web3js;
 
