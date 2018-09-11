@@ -3,7 +3,7 @@ import {numberOfClaimsForHash,
     claimerAddressFromHashAndIndex,
     blockNumberFromHashAndIndex,
     contractAddress,
-    blockTimestampFromHashAndIndex} from './blockChain/callContractTransaction';
+    blockTimestampFromHashAndIndex} from './blockChain/claimChainCaller';
 
 import {addListenerForClaimEvents} from './blockChain/blockChainEvents';
 

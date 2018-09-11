@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {Card, Button} from 'antd';
-import {startRegisterHashTransaction} from './blockChain/callContractTransaction';
+import {startRegisterHashTransaction} from './blockChain/claimChainCaller';
 
 export class ClaimCard extends Component {
 
