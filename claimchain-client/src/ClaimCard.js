@@ -6,7 +6,9 @@ import {startRegisterHashTransaction} from './blockChain/claimChainCaller';
 export class ClaimCard extends Component {
 
     renderClaimButton() {
-        <Button type="primary" onClick={() => startRegisterHashTransaction(this.props.hash)}>Claim</Button>
+        return (
+            <Button type="primary" onClick={() => startRegisterHashTransaction(this.props.hash)}>Claim</Button>
+            )
     }
 
     render() {

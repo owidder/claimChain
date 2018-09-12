@@ -18,10 +18,13 @@ export const canStartTransaction = () => {
 export const contractAddress = ClaimChain.address;
 
 export const startRegisterHashTransaction = (hash) => {
-    claimChainContract.registerHash(hash).call({from: web3js.eth.coinbase}, (error, result) => {
-        if(!error) {
-            console.log(result);
-        }
+    return new Promise(async resolve => {
+        const coinbase = await web3js.eth.getCoinbase();
+        const receipt = await claimChainContract.methods.registerHash(hash).send({from: coinbase});
+
+        debugger
+
+        resolve(receipt);
     })
 }
 
