@@ -20,7 +20,6 @@ const createRestApi = (app) => {
     const api = express.Router();
 
     api.get("/check/:hash", (req, res) => {
-        const _c = contractAddress;
         const hash = req.params.hash;
         const claims = claimFinder.getClaims(hash) || [{hash, contractAddress}];
         res.json(claims);

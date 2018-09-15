@@ -4,8 +4,8 @@ const Web3 = require('web3');
 
 let _web3;
 let _web3WithWsProvider;
-let _web3Provider;
 let _web3WebSocketProvider;
+let _web3WebProvider;
 
 const HTTP_HOST = "127.0.0.1";
 const HTTP_PORT = "6545";
@@ -38,19 +38,19 @@ const getWeb3WithWsProvider = () => {
 }
 
 const getWeb3Provider = () => {
-    if(_.isUndefined(_web3Provider)) {
-        _web3WebSocketProvider = new Web3.providers.HttpProvider(HTTP_URL);
+    if(_.isUndefined(_web3WebSocketProvider)) {
+        _web3WebProvider = new Web3.providers.HttpProvider(HTTP_URL);
     }
 
-    return _web3WebSocketProvider;
+    return _web3WebProvider;
 }
 
 const getWeb3WebSocketProvider = () => {
-    if(_.isUndefined(_web3Provider)) {
-        _web3Provider = new Web3.providers.WebsocketProvider(WS_URL);
+    if(_.isUndefined(_web3WebSocketProvider)) {
+        _web3WebSocketProvider = new Web3.providers.WebsocketProvider(WS_URL);
     }
 
-    return _web3Provider;
+    return _web3WebSocketProvider;
 }
 
 module.exports = {

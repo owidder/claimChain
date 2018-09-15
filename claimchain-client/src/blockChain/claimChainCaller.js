@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
+import {ClaimChain} from './ClaimChain.truffle';
+
 const Web3 = require('web3');
-const ClaimChain = require('./_ClaimChain.json');
 
 let web3js;
 
@@ -8,7 +9,6 @@ if(!_.isUndefined(window.web3)) {
     web3js = new Web3(window.web3.currentProvider);
 }
 
-//const claimChainContract = web3js.eth.contract(ClaimChain.abi).at(ClaimChain.address);
 const claimChainContract = new web3js.eth.Contract(ClaimChain.abi, ClaimChain.address);
 
 export const canStartTransaction = () => {
@@ -22,9 +22,15 @@ export const startRegisterHashTransaction = (hash) => {
         const coinbase = await web3js.eth.getCoinbase();
         const receipt = await claimChainContract.methods.registerHash(hash).send({from: coinbase});
 
-        debugger
-
         resolve(receipt);
+    })
+}
+
+export const pastEvents = () => {
+    return new Promise(async resolve => {
+        const events = await claimChainContract.getPastEvents("NewClaim", {fromBlock: 0, toBlock: "latest"});
+
+        resolve(events);
     })
 }
 

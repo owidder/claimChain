@@ -3,7 +3,9 @@ import {numberOfClaimsForHash,
     claimerAddressFromHashAndIndex,
     blockNumberFromHashAndIndex,
     contractAddress,
-    blockTimestampFromHashAndIndex} from './blockChain/claimChainCaller';
+    blockTimestampFromHashAndIndex,
+    pastEvents,
+} from './blockChain/claimChainCaller';
 
 import {addListenerForClaimEvents} from './blockChain/blockChainEvents';
 
@@ -44,6 +46,7 @@ const _readClaimsRecursive = async (hash, claimArray, numberOfClaims, counter, r
 }
 
 export const check2 = async (hash) => {
+    const events = pastEvents();
     const numberOfClaims = await numberOfClaimsForHash(hash);
     return new Promise(resolve => {
         _readClaimsRecursive(hash, [], numberOfClaims, 0, resolve);
